@@ -1,0 +1,1 @@
+<view><view style="margin-top:110rpx;text-align:center;">选择任务类型</view><button style="width:42%;margin:80rpx auto;" type="primary" data-event-opts="{{[['tap',[['goPrelease',['$event']]]]]}}" bindtap="__e">预租房(组团)</button><button style="width:38%;margin:60rpx auto;" type="primary" data-event-opts="{{[['tap',[['goRentsharing',['$event']]]]]}}" bindtap="__e">合租房</button></view>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+    <head>
+        <meta charset="UTF-8" />
+        <script>
+            var coverSupport = 'CSS' in window && typeof CSS.supports === 'function' && (CSS.supports('top: env(a)') ||
+                CSS.supports('top: constant(a)'))
+            document.write(
+                '<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0' +
+                (coverSupport ? ', viewport-fit=cover' : '') + '" />')
+        </script>
+        <title>View</title>
+        <style>
+            * {
+                -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+                -webkit-tap-highlight-color: transparent;
+            }
+
+            input[type="search"i]::-webkit-search-cancel-button {
+                display: none;
+            }
+        </style>
+        <script>
+            var __wxConfig = {"debug":false,"appname":"校友合租","entryPagePath":"pages/home/home.html","page":{"pages/home/home.html":{"window":{"navigationBarTextStyle":"black","enablePullDownRefresh":true,"onReachBottomDistance":50,"titleNView":false,"softinputNavBar":"none","subNVues":[{"id":"homeTitleNvue","type":"navigationBar"}],"usingComponents":{}}},"pages/index/index.html":{"window":{"navigationBarTitleText":"index","usingComponents":{}}},"pages/login.html":{"window":{"navigationBarTitleText":"登录","usingComponents":{}}},"pages/register.html":{"window":{"navigationBarTitleText":"注册","usingComponents":{}}},"pages/forget.html":{"window":{"navigationBarTitleText":"忘记密码","usingComponents":{}}},"pages/release/release.html":{"window":{"navigationBarTitleText":"发布","usingComponents":{}}},"pages/rent/rent.html":{"window":{"navigationBarTitleText":"我的发布","usingComponents":{}}},"pages/rent/detail.html":{"window":{"navigationBarTitleText":"发布详情","usingComponents":{}}},"pages/release/prelease.html":{"window":{"navigationBarTitleText":"预租房发布","usingComponents":{}}},"pages/release/rentsharing.html":{"window":{"navigationBarTitleText":"合租房发布","usingComponents":{}}},"pages/user/user.html":{"window":{"navigationBarTitleText":"我的信息","usingComponents":{"uni-calendar":"/components/uni-calendar/uni-calendar"}}}},"global":{"window":{"navigationBarTextStyle":"black","navigationBarTitleText":"uni-app","navigationBarBackgroundColor":"#F8F8F8","backgroundColor":"#F8F8F8"}},"tabBar":{"color":"#333333","selectedColor":"#f06c7a","backgroundColor":"#ffffff","borderStyle":"black","list":[{"pagePath":"pages/home/home.html","iconPath":"static/img/tabBar/home.png","selectedIconPath":"static/img/tabBar/home-on.png","text":"发现"},{"pagePath":"pages/rent/rent.html","iconPath":"static/img/tabBar/user.png","selectedIconPath":"static/img/tabBar/user-on.png","text":"我的合租"},{"pagePath":"pages/user/user.html","iconPath":"static/img/tabBar/user.png","selectedIconPath":"static/img/tabBar/user-on.png","text":"我的信息"}],"position":"bottom"},"networkTimeout":{"request":60000,"connectSocket":60000,"uploadFile":60000,"downloadFile":60000},"platform":"devtools","pages":["pages/home/home","pages/index/index","pages/login","pages/register","pages/forget","pages/release/release","pages/rent/rent","pages/rent/detail","pages/release/prelease","pages/release/rentsharing","pages/user/user"],"nvueCompiler":"weex","renderer":"auto","splashscreen":{"alwaysShowBeforeRender":true,"autoclose":false},"compilerVersion":"2.2.0","usingComponents":{}}
+        </script>
+        <script>
+            var __id__ = '';
+            window.__dispatchGenerateFunc__ = function(page) {
+                __id__ = page;
+                document.title = page;
+                // window.history.pushState('', '', page);
+                var wxss = page.replace('.html', '.wxss')
+                if (
+                    typeof __wxAppCode__ !== 'undefined' &&
+                    __wxAppCode__.hasOwnProperty(wxss)
+                ) {
+                    var setCssToHead = __wxAppCode__[wxss]
+                    typeof setCssToHead === 'function' && setCssToHead()
+                    document.dispatchEvent(new CustomEvent("generateFuncReady", {
+                        detail: {
+                            generateFunc: $gwx(page.replace('.html', '.wxml'))
+                        }
+                    }));
+                } else {
+                    plus.webview.currentWebview().setJsFile('_www/' + page.replace('.html', '.js'));
+                }
+            };
+        </script>
+        <script src="__uniappes6.js"></script>
+        <script src="uniapp://ready"></script>
+    </head>
+
+    <body>
+        <div></div>
+    </body>
+
+</html>

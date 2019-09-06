@@ -1,0 +1,20 @@
+@font-face {
+  font-family: 'iconfont';  /* project id 1320093 */
+  src: url('//at.alicdn.com/t/font_1320093_1ocs2xz9g0ah.eot');
+  src: url('//at.alicdn.com/t/font_1320093_1ocs2xz9g0ah.eot?#iefix') format('embedded-opentype'),
+  url('//at.alicdn.com/t/font_1320093_1ocs2xz9g0ah.woff2') format('woff2'),
+  url('//at.alicdn.com/t/font_1320093_1ocs2xz9g0ah.woff') format('woff'),
+  url('//at.alicdn.com/t/font_1320093_1ocs2xz9g0ah.ttf') format('truetype'),
+  url('//at.alicdn.com/t/font_1320093_1ocs2xz9g0ah.svg#iconfont') format('svg');
+}
+    .icon {
+      font-size: 24upx;
+      color: #000000;
+      font-family: iconfont;
+    }
+   .iconweizhi:before { // 需要使用的图标
+		content: '\e615';
+	}
+	.iconicon-test{
+		
+	}
