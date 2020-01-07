@@ -1,0 +1,2 @@
+setCssToHead(["body{ padding-bottom: ",[0,110],"; }\n.",[1],"msg-list{ position: absolute; top: 80px; bottom: ",[0,100],"; }\n",],undefined,{path:"./pages/chat/detail.wxss"})();
+document.dispatchEvent(new CustomEvent("generateFuncReady", { detail: { generateFunc: $gwx('./pages/chat/detail.wxml') } }));

@@ -1,33 +1,20 @@
 import urlConfig from './config.js'
+var util = require('@/common/util.js');
 
 const request = {}
 const headers = {}
-const PORT1 = '/baseinfo'
-    
+
 request.globalRequest = (url, method, data, power) => {
-/*     权限判断 因为有的接口请求头可能需要添加的参数不一样，所以这里做了区分
-    1 == 不通过access_token校验的接口
-    2 == 文件下载接口列表
-    3 == 验证码登录 */
-        
-    // switch (power){
-    //     case 1:
-    //         headers['Authorization'] = 'Basic a3N1ZGk6a3N1ZGk='
-    //         break;
-    //     case 2:
-    //         headers['Authorization'] = 'Basic a3N1ZGlfcGM6a3N1ZGlfcGM='
-    //         break;
-    //     case 3:
-    //         responseType = 'blob'
-    //         break;
-    //     default:
-    //         headers['Authorization'] = `Bearer ${
-    //             this.$store.getters.userInfo
-    //         }`
-    //         headers['TENANT-ID'] = this.$store.getters.userInfo.tenant_id
-    //         break;
-    // }
-            
+	var Authorization;
+	try {
+		var value = uni.getStorageSync('Authentication');
+		Authorization = 'Bearer ' + value
+	} catch (e) {
+		    // error
+	}
+	if (Authorization) {
+		headers.Authorization = Authorization.replace(/\"/g, "")
+	}
     return uni.request({
         url: urlConfig + url,
         method,
@@ -35,21 +22,40 @@ request.globalRequest = (url, method, data, power) => {
         dataType: 'json',
         header: headers
     }).then(res => {
-        if (res[1].data.status && res[1].data.code == 200) {
-            return res[1]
-        } else {
-            throw res[1].data
-        }
+		res = res[1]
+		if (res && res.data.code == 200) {
+			if(url && url.indexOf('/login') != -1){
+				let authentication = res.header['Authentication-Info'] || res.header['authentication-info']
+				uni.setStorageSync('Authentication', JSON.stringify(authentication));
+				var value = uni.getStorageSync('Authentication');
+			}
+			return res.data
+		} else {
+			 throw res.data
+		}
     }).catch(parmas => {
 　　　　　　switch (parmas.code) {
 　　　　　　　　case 401:
 　　　　　　　　　　uni.clearStorageSync()
+				  let curPage = util.getCurPage();
+				  if (curPage.indexOf('/pages/login') == -1){
+					uni.clearStorageSync('跳转了哦')
+					uni.reLaunch({
+						url: '/pages/login'
+					})
+				  } 
+　　　　　　　　　　break
+　　			  case 405:
+　　　　　　　　　　uni.clearStorageSync()
+				  uni.reLaunch({
+				  	url: '/pages/login'
+				  })
 　　　　　　　　　　break
 　　　　　　　　default:
-　　　　　　　　　　uni.showToast({
-　　　　　　　　　　　　title: parmas.message,
-　　　　　　　　　　　　icon: 'none'
-　　　　　　　　　　})
+				uni.showToast({
+					icon: 'none',
+					title: parmas.msg
+				});
 　　　　　　　　　　return Promise.reject()
 　　　　　　　　　　break
 　　　　　　}

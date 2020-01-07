@@ -1,855 +1,627 @@
 <template>
-	<div class="home-page">
-		<view class="status" :style="{ opacity: afterHeaderOpacity }"></view>
-		<view class="header">
-			<!-- 头部-默认显示 -->
-<!-- 			<view class="before" :style="{ opacity: 1 - afterHeaderOpacity, zIndex: beforeHeaderzIndex }">
-				<view class="back"><view class="icon xiangqian" @tap="back" v-if="showBack"></view></view> 
-				<view class="middle">首页</view>
-				<view class="icon-btn">
-					<view class="icon iconfont iconweizhi"></view>
+	<view class="home-page">
+		<cu-custom bgColor="uni-custom-header-color">
+			<block slot="content">首页</block>
+			<block slot="right">
+				<view class="icon-btn" style="position: absolute;right: 20px;top:76upx;color: #000000;" @tap="toggleSelectCity">
+					<text class="cuIcon-locationfill lg text-gray padding-right-xs" ></text>
 					{{ city }}
 				</view>
-			</view> -->
-			<!-- 头部-滚动渐变显示 -->
-	<!-- 		<view class="after" :style="{ opacity: afterHeaderOpacity, zIndex: afterHeaderzIndex }">
-				<view class="back" ><view class="icon xiangqian" @tap="back" v-if="showBack"></view></view>
-				<view class="middle">
-					<view v-for="(anchor,index) in anchorlist" :class="[selectAnchor==index ?'on':'']" :key="index" @tap="toAnchor(index)">{{anchor.name}}</view>
-				</view>
-				<view class="icon-btn">
-					<view class="icon iconfont iconweizhi"></view>
-					<view class="icon tongzhi" @tap="toMsg"></view>
-				</view>
-			</view> -->
-		</view>
+			</block>
+		</cu-custom>
+	
 		<!-- 搜索框 -->
 		<view class="input-box-wraper">
 			<text class="release-text"  @tap="release">我要发布</text>
-			<div class="center-input">
+			<view class="center-input">
 				<input
 					placeholder-class="placeholder-class"
-					placeholder="默认关键字"
+					placeholder="请输入大学名称"
 					placeholder-style="color:#c0c0c0;"
-					@tap="toSearch()"
+					v-model="searchParams.college"
 				/>
-				<view @click="clearKeyword"
-				 class="clear-icon">×
-				</view>
-			</div>
-			<!-- <icon type="clear" size="26"/> -->
-			<button class="mini-btn search-btn" type="default" size="mini">搜索</button>
-			<!-- <view class="icon search"></view> -->
+				<view @tap="clearKeyword" class="clear-icon">×</view>
+			</view>
+			<button @tap="getGroupList" class="cu-btn round lines-blue search-btn">搜索</button>
 		</view>
 		<!-- tab -->
 		<view class="tab-top-wraper">
 			<view class="tab-item"
 			@tap="toggleTab(item)"
 			 v-for="item in tabBtnList" 
-			 :class="{'active': activeTab == item.value}"
+			 :class="{'active': activeTab == item.value || item.checked}"
 			 :key="item.value">
 				{{ item.text }}
+				<text v-if="activeTab == item.value" class="cuIcon-triangleupfill lg text-gray"></text>
+				<text v-else class="cuIcon-triangledownfill lg text-gray"></text>
+				<!-- <text class="lg text-gray" :class="{activeTab == item.value ? '': ''}"></text> -->
+				<!-- <view style='display: inline-block;' class="icon iconfont iconxiaosanjiaodown" :class="{'rotate':activeTab == item.value}"></view> -->
+			</view>
+			
+			<view class="position-model" v-show='activeTab == 1'>
+				<view class="content">
+					<view class="container">
+						<view class="list">
+							<view class="item" @tap="chooseEmptyProvince" :class="{'active': !activeProvince}">不限</view>
+							<view class="item" @tap="chooseProvince(province,index)" v-for="(province,index) in provinceDataList" :class="{'active': activeProvince == province.label}" :key="index">{{ province.label }}</view>
+						</view>
+						<view class="list">
+							<view class="item" @tap="chooseEmptyCity" :class="{'active': !activeCity}">不限</view>
+							<view class="item" @tap="chooseCity(city,index)" v-for="(city,index) in cityDataList" :class="{'active': activeCity == city.label}" :key="index">{{ city.label }}</view>
+						</view>
+						<view class="list">
+							<view class="item" @tap="chooseEmptyArea" :class="{'active': !activeArea}">不限</view>
+							<view class="item" @tap="chooseArea(area,index)" v-for="(area,index) in areaDataList" :class="{'active': activeArea == area.label}" :key="index">{{ area.label }}</view>
+						</view>
+					</view>
+				</view>
+				<view class="position-footer-wraper">
+					<button style="margin-right: 20upx;" class="mini-btn" size="mini" formType="submit" @tap="cancelPosition">取消</button>
+					<button class="mini-btn" type="primary" size="mini" formType="submit" @tap="confirmPosition">确认</button>
+				</view>
+			</view>
+			
+			<view class="type-wraper tab-top-content" v-show='activeTab == 2'>
+				<view>合租</view>
+				<view class="tab-bot-content">
+					<view v-for="item in rentTypeList" :key="item.value" :class="{checked: cotenantType == item.value}">
+						<text @tap="changeRentType(item.value)">
+							{{ item.name }}
+						</text>
+					</view>
+				</view>
+				<view style="text-align: right;">
+					<button style="margin-right: 20upx;" class="mini-btn" size="mini" formType="submit" @tap="cancelType">取消</button>
+					<button class="mini-btn" type="primary" size="mini" formType="submit" @tap="confirmType">确认</button>
+				</view>
+			</view>
+			
+			<view class="type-wraper tab-top-content" v-show='activeTab == 3'>
+				<view>合租数</view>
+				<view class="tab-bot-content">
+					<view v-for="item in roomCountList" :key="item.value" :class="{checked: cotenantCount == item.value}">
+						<text @tap="changeRentCount(item.value)">
+							{{ item.name }}
+						</text>
+					</view>
+				</view>
+				<view style="text-align: right;">
+					<button style="margin-right: 20upx;" class="mini-btn" size="mini" formType="submit" @tap="cancelCount">取消</button>
+					<button class="mini-btn" type="primary" size="mini" formType="submit" @tap="confirmCount">确认</button>
+				</view>
+			</view>
+		
+			<view class="choose-city-wrap" v-show="showSelectCity">
+				<view class="content-wrap">
+					<view class="select-city">
+						<scroll-view :scroll-into-view="scrollIntoId" :scroll-y="true" :scroll-with-animation="true" :style="{height:windowHeight}">
+						  <view class="content padding-top-sm">
+						    <view class="section" id="current">
+						      <view class="city-title">当前城市
+								<text style="color:#007AFF;" class="padding-left-lg" @tap="reloadPosition">重新获取</text>
+							  </view>
+						      <view class="city-list">
+						        <view class="city-item">{{current}}</view>
+						      </view>
+						    </view>
+						    <view class="section" id="hot" v-if="hotCitys.length">
+						      <view class="city-title">热门城市</view>
+						      <view class="city-list">
+						        <view class="city-item" :class="{active: current === city}" v-for="(city, i) in hotCitys" :key="i" @click="onSelect(city)">{{city}}</view>
+						      </view>
+						    </view>
+							<view class="city-footer">
+								<button style="margin-right: 40upx;" class="mini-btn" size="mini" formType="submit" @tap="cancelSelectCity">取消</button>
+								<button class="mini-btn" type="primary" size="mini" formType="submit" @tap="confirmSelectCity">确认</button>
+							</view>
+						  </view>
+						</scroll-view>
+					  </view>
+				</view>
 			</view>
 		</view>
+		
 		<!-- 商品列表 -->
 		<view class="goods-list">
 			<view class="product-list">
 				<view
 					class="product"
-					v-for="product in productList"
-					:key="product.goods_id"
-					@tap="toGoods(product)"
-				>
-					<image mode="widthFix" :src="product.photo_min"></image>
+					v-for="(product,index) in productList"
+					:key="index"
+					@tap="toGoods(product)">
+					<!-- :src="`${item}?imageView2/1/w/800/h/434`" -->
+					<image :src="product.imgUrlList && product.imgUrlList[0] ? `${product.imgUrlList[0]}?imageView2/1/w/800/h/434` : emptyRoomPic"></image>
 					<view class="content">
 						<view class="container">
-							<view class="name">{{ product.name }}</view>
-							<view class="info">{{ product.area_order }} m² </view>
-							<view class="address">{{ product.subway_station_info }}</view>
+							<view class="name text-cut">{{ product.title }}</view>
+							<view class="info padding-top-xs">团长: {{ product.leader }} </view>
+							<view class="info">房间数: {{ product.cotenant_count }} </view>
+							<view class="info">租房类型: {{ product.cotenant_type == 1 ? '预租房' : '合租房' }}</view>
 						</view>
 					</view>
 				</view>
 			</view>
-			<view class="loading-text">{{ loadingText }}</view>
+			<view class="no-more-txt">没有更多了哦</view>
+			<!-- <view class="loading-text">{{ loadingText }}</view> -->
 		</view>
-
-</view>
-	</div>
+		</view>
+	</view>
 </template>
 
 <script>
 	
 	//高德SDK
 	import amap from '@/common/SDK/amap-wx.js';
-
+	import provinceData from '@/components/mpvue-citypicker/city-data/province.js';
+	import cityData from '@/components/mpvue-citypicker/city-data/city.js';
+	import areaData from '@/components/mpvue-citypicker/city-data/area.js';
+	import {  
+	        mapState,  
+	        mapMutations  
+	    } from 'vuex';  
+	
 	export default {
 
 		data() {
 			return {
-				activeTab: '1',
+				loadModal: false,
+				activeTab: '0',
+				nVueTitle:null,
+				provinceDataList: [],
+				cityDataList: [],
+				areaDataList: [],
+				activeProvince: '上海市',
+				activeCity: '',
+				activeArea: '',
+				pickerValueDefault: [0,0,0],
 				tabBtnList: [
-					{ text: '位置', value: '1' },
-					{ text: '合租', value: '2' },
-					{ text: '房间数', value: '3' },
+					{ text: '位置', value: '1' , checked: false},
+					{ text: '合租', value: '2', checked: false },
+					{ text: '房间数', value: '3', checked: false },
 				],
-				//控制渐变标题栏的参数
-				beforeHeaderzIndex: 11,//层级
-				afterHeaderzIndex: 10,//层级
-				beforeHeaderOpacity: 1,//不透明度
-				afterHeaderOpacity: 0,//不透明度
-				// #ifndef MP
-				showBack:true,
-				// #endif
-				anchorlist:[],//导航条锚点
-				selectAnchor:0,//选中锚点
-				city: '上海',
-				//猜你喜欢列表
-				productList:[
-				    {
-				                                "id": "62490488",
-				                                "house_id": "60394647",
-				                                "type": 1,
-				                                "name": "金铭福邸4居室-南卧",
-				                                "price": ["//static8.ziroom.com/phoenix/pc/images/price/da4554c01a8c0563bf7fc106c3934722s.png", [7, 0, 6, 2]],
-				                                "area": "17.3",
-				                                "price_unit": "/月",
-				                                "photo": "//img.ziroom.com/pic/house_images/g2m2/M00/43/74/CtgFCV04HEiAcHDGAAJ3x0Iyhhc512.jpg_C_240_180_Q100.jpg",
-				                                "floor_total": "6",
-				                                "floor": "4",
-				                                "has_video": 1,
-				                                "has_3d": 0,
-				                                "sale_img": "",
-				                                "type_text": "合租",
-				                                "inv_id": "921903",
-				                                "inv_no": "789424591",
-				                                "code": "SHZRGY0819473048_01",
-				                                "house_code": "SHZRGY0819473048",
-				                                "turn": 0,
-				                                "bedroom": 4,
-				                                "parlor": 1,
-				                                "resblock_id": "5011000014650",
-				                                "resblock_name": "金铭福邸",
-				                                "lng": 121.4176737,
-				                                "lat": 31.01631551,
-				                                "face": "南",
-				                                "photo_webp": "//img.ziroom.com/pic/house_images/g2m2/M00/43/74/CtgFCV04HEiAcHDGAAJ3x0Iyhhc512.jpg_C_240_180_Q100.jpg",
-				                                "photo_min": "//img.ziroom.com/pic/house_images/g2m2/M00/43/74/CtgFCV04HEiAcHDGAAJ3x0Iyhhc512.jpg_C_240_180_Q100.webp",
-				                                "photo_min_webp": "//img.ziroom.com/pic/house_images/g2m2/M00/43/74/CtgFCV04HEiAcHDGAAJ3x0Iyhhc512.jpg_C_240_180_Q100.webp",
-				                                "house_type": 1,
-				                                "area_order": 17.3,
-				                                "sort_score": 8.823,
-				                                "air_qualified": 1,
-				                                "air_quality": 2,
-				                                "activity_marks": [],
-				                                "is_ai_lock": 1,
-				                                "can_sign_date": 1566576000,
-				                                "can_sign_time": 1564884000,
-				                                "can_reserve_time": 0,
-				                                "can_sign_long": 1,
-				                                "sale_status": 3,
-				                                "stock_status": "201",
-				                                "apartment_type": 1,
-				                                "commute_info": "",
-				                                "title_tag": 5,
-				                                "intro_list": [{
-				                                    "icon": "https://image.ziroom.com/g2m1/M00/66/71/ChAFB1vk_O6ASX5vAAAEQEpAQUE464.png",
-				                                    "title": "空气质量已检测, 已空置24天",
-				                                    "is_marked": 0
-				                                }, {
-				                                    "icon": "https://image.ziroom.com/g2m1/M00/67/9D/ChAFBlvk_PmAQNRIAAACNwPDlpM637.png",
-				                                    "title": "预计2019-08-24可入住",
-				                                    "is_marked": 0
-				                                }],
-				                                "tags": [{
-				                                    "title": "深呼吸",
-				                                    "bg_img": "https://image.ziroom.com/g2m1/M00/42/73/ChAFBlvW2J6AZtJtAAAfl2T06pY936.png"
-				                                }, {
-				                                    "title": "独立卫生间"
-				                                }, {
-				                                    "title": "拿铁4.0"
-				                                }],
-				                                "subway_station_info": "小区距5号线金平路站步行约176米",
-				                                "source": "search"
-				    },
-				    {
-				                                "id": "20022062",
-				                                "house_id": "20004753",
-				                                "type": 1,
-				                                "name": "灵石小区3居室-南卧",
-				                                "price": ["//static8.ziroom.com/phoenix/pc/images/price/da4554c01a8c0563bf7fc106c3934722s.png", [7, 0, 0, 2]],
-				                                "area": "11.2",
-				                                "price_unit": "/月",
-				                                "photo": "//img.ziroom.com/pic/house_images/g2m2/M00/F2/F2/CtgFCF0oUzKAOhqnADJbmqvamuQ787.jpg_C_240_180_Q100.jpg",
-				                                "floor_total": "6",
-				                                "floor": "4",
-				                                "has_video": 0,
-				                                "has_3d": 0,
-				                                "sale_img": "",
-				                                "type_text": "合租",
-				                                "inv_id": "70365",
-				                                "inv_no": "670153905",
-				                                "code": "SHPT69939018_03",
-				                                "house_code": "SHPT69939018",
-				                                "turn": 0,
-				                                "bedroom": 3,
-				                                "parlor": 1,
-				                                "resblock_id": "5011000016972",
-				                                "resblock_name": "灵石小区",
-				                                "lng": 121.430187,
-				                                "lat": 31.271704,
-				                                "face": "南",
-				                                "photo_webp": "//img.ziroom.com/pic/house_images/g2m2/M00/F2/F2/CtgFCF0oUzKAOhqnADJbmqvamuQ787.jpg_C_240_180_Q100.jpg",
-				                                "photo_min": "//img.ziroom.com/pic/house_images/g2m2/M00/F2/F2/CtgFCF0oUzKAOhqnADJbmqvamuQ787.jpg_C_240_180_Q100.webp",
-				                                "photo_min_webp": "//img.ziroom.com/pic/house_images/g2m2/M00/F2/F2/CtgFCF0oUzKAOhqnADJbmqvamuQ787.jpg_C_240_180_Q100.webp",
-				                                "house_type": 1,
-				                                "area_order": 11.2,
-				                                "sort_score": 8.767,
-				                                "air_qualified": 1,
-				                                "air_quality": 0,
-				                                "activity_marks": [],
-				                                "is_ai_lock": 1,
-				                                "can_sign_date": 1565971200,
-				                                "can_sign_time": 1562995804,
-				                                "can_reserve_time": 0,
-				                                "can_sign_long": 1,
-				                                "sale_status": 3,
-				                                "stock_status": "201",
-				                                "apartment_type": 1,
-				                                "commute_info": "",
-				                                "title_tag": 1,
-				                                "intro_list": [],
-				                                "tags": [{
-				                                    "title": "离地铁近"
-				                                }, {
-				                                    "title": "非首次出租"
-				                                }, {
-				                                    "title": "木棉4.0"
-				                                }],
-				                                "subway_station_info": "小区距7号线新村路站步行约253米",
-				                                "source": "search"
-				                            },
-				    {
-				                                "id": "62428409",
-				                                "house_id": "60384035",
-				                                "type": 1,
-				                                "name": "华高二村3居室-南卧",
-				                                "price": ["//static8.ziroom.com/phoenix/pc/images/price/da4554c01a8c0563bf7fc106c3934722s.png", [7, 8, 8, 2]],
-				                                "area": "11.5",
-				                                "price_unit": "/月",
-				                                "photo": "//img.ziroom.com/pic/house_images/g2m2/M00/BC/4E/CtgFCV0d8T2ACsZ1AAJ-tzX8ib4557.JPG_C_240_180_Q100.jpg",
-				                                "floor_total": "6",
-				                                "floor": "4",
-				                                "has_video": 1,
-				                                "has_3d": 0,
-				                                "sale_img": "",
-				                                "type_text": "合租",
-				                                "inv_id": "900198",
-				                                "inv_no": "787319206",
-				                                "code": "SHZRGY0819462526_03",
-				                                "house_code": "SHZRGY0819462526",
-				                                "turn": 0,
-				                                "bedroom": 3,
-				                                "parlor": 1,
-				                                "resblock_id": "5011000012924",
-				                                "resblock_name": "华高二村",
-				                                "lng": 121.623003,
-				                                "lat": 31.286956,
-				                                "face": "南",
-				                                "photo_webp": "//img.ziroom.com/pic/house_images/g2m2/M00/BC/4E/CtgFCV0d8T2ACsZ1AAJ-tzX8ib4557.JPG_C_240_180_Q100.jpg",
-				                                "photo_min": "//img.ziroom.com/pic/house_images/g2m2/M00/BC/4E/CtgFCV0d8T2ACsZ1AAJ-tzX8ib4557.JPG_C_240_180_Q100.webp",
-				                                "photo_min_webp": "//img.ziroom.com/pic/house_images/g2m2/M00/BC/4E/CtgFCV0d8T2ACsZ1AAJ-tzX8ib4557.JPG_C_240_180_Q100.webp",
-				                                "house_type": 1,
-				                                "area_order": 11.5,
-				                                "sort_score": 8.752,
-				                                "air_qualified": 1,
-				                                "air_quality": 2,
-				                                "activity_marks": [],
-				                                "is_ai_lock": 1,
-				                                "can_sign_date": 1565971200,
-				                                "can_sign_time": 1562376722,
-				                                "can_reserve_time": 0,
-				                                "can_sign_long": 1,
-				                                "sale_status": 3,
-				                                "stock_status": "201",
-				                                "apartment_type": 1,
-				                                "commute_info": "",
-				                                "title_tag": 1,
-				                                "intro_list": [{
-				                                    "icon": "https://image.ziroom.com/g2m1/M00/66/71/ChAFB1vk_OSAA2ZBAAAEqwrFIBo493.png",
-				                                    "title": "空气质量已检测, 空置已超过30天",
-				                                    "is_marked": 0
-				                                }],
-				                                "tags": [{
-				                                    "title": "深呼吸",
-				                                    "bg_img": "https://image.ziroom.com/g2m1/M00/42/73/ChAFBlvW2J6AZtJtAAAfl2T06pY936.png"
-				                                }, {
-				                                    "title": "离地铁近"
-				                                }, {
-				                                    "title": "布丁4.0"
-				                                }],
-				                                "subway_station_info": "小区距12号线金京路站步行约342米",
-				                                "source": "search"
-				                            },
-				    {
-				                                "id": "62503563",
-				                                "house_id": "60397013",
-				                                "type": 1,
-				                                "name": "浦发绿城浦三路2801弄3居室-南卧",
-				                                "price": ["//static8.ziroom.com/phoenix/pc/images/price/da4554c01a8c0563bf7fc106c3934722s.png", [7, 0, 6, 2]],
-				                                "area": "11.7",
-				                                "price_unit": "/月",
-				                                "photo": "//img.ziroom.com/pic/house_images/g2m2/M00/7D/F5/CtgFCF1EQaiAQf9HAB1gIpFKVZo968.jpg_C_240_180_Q100.jpg",
-				                                "floor_total": "6",
-				                                "floor": "5",
-				                                "has_video": 1,
-				                                "has_3d": 0,
-				                                "sale_img": "",
-				                                "type_text": "合租",
-				                                "inv_id": "925982",
-				                                "inv_no": "789820254",
-				                                "code": "SHZRGY0819475326_03",
-				                                "house_code": "SHZRGY0819475326",
-				                                "turn": 0,
-				                                "bedroom": 3,
-				                                "parlor": 1,
-				                                "resblock_id": "5011000013259",
-				                                "resblock_name": "浦发绿城浦三路2801弄",
-				                                "lng": 121.54476,
-				                                "lat": 31.161379,
-				                                "face": "南",
-				                                "photo_webp": "//img.ziroom.com/pic/house_images/g2m2/M00/7D/F5/CtgFCF1EQaiAQf9HAB1gIpFKVZo968.jpg_C_240_180_Q100.jpg",
-				                                "photo_min": "//img.ziroom.com/pic/house_images/g2m2/M00/7D/F5/CtgFCF1EQaiAQf9HAB1gIpFKVZo968.jpg_C_240_180_Q100.webp",
-				                                "photo_min_webp": "//img.ziroom.com/pic/house_images/g2m2/M00/7D/F5/CtgFCF1EQaiAQf9HAB1gIpFKVZo968.jpg_C_240_180_Q100.webp",
-				                                "house_type": 1,
-				                                "area_order": 11.7,
-				                                "sort_score": 8.751,
-				                                "air_qualified": 1,
-				                                "air_quality": 2,
-				                                "activity_marks": [],
-				                                "is_ai_lock": 1,
-				                                "can_sign_date": 1567353600,
-				                                "can_sign_time": 1565748000,
-				                                "can_reserve_time": 0,
-				                                "can_sign_long": 1,
-				                                "sale_status": 3,
-				                                "stock_status": "201",
-				                                "apartment_type": 1,
-				                                "commute_info": "",
-				                                "title_tag": 5,
-				                                "intro_list": [{
-				                                    "icon": "https://image.ziroom.com/g2m1/M00/66/71/ChAFB1vk_O6ASX5vAAAEQEpAQUE464.png",
-				                                    "title": "空气质量已检测, 已空置15天",
-				                                    "is_marked": 0
-				                                }, {
-				                                    "icon": "https://image.ziroom.com/g2m1/M00/67/9D/ChAFBlvk_PmAQNRIAAACNwPDlpM637.png",
-				                                    "title": "预计2019-09-02可入住",
-				                                    "is_marked": 0
-				                                }],
-				                                "tags": [{
-				                                    "title": "深呼吸",
-				                                    "bg_img": "https://image.ziroom.com/g2m1/M00/42/73/ChAFBlvW2J6AZtJtAAAfl2T06pY936.png"
-				                                }, {
-				                                    "title": "离地铁近"
-				                                }, {
-				                                    "title": "米苏4.0"
-				                                }],
-				                                "subway_station_info": "小区距11号线浦三路站步行约647米",
-				                                "source": "search"
-				                            },
-				    {
-				                                "id": "62497262",
-				                                "house_id": "60395887",
-				                                "type": 1,
-				                                "name": "华高二村3居室-南卧",
-				                                "price": ["//static8.ziroom.com/phoenix/pc/images/price/da4554c01a8c0563bf7fc106c3934722s.png", [7, 8, 6, 2]],
-				                                "area": "12.5",
-				                                "price_unit": "/月",
-				                                "photo": "//img.ziroom.com/pic/house_images/g2m2/M00/84/32/CtgFCV1FiKOAekiQAAJAg7dNX2A503.JPG_C_240_180_Q100.jpg",
-				                                "floor_total": "6",
-				                                "floor": "3",
-				                                "has_video": 1,
-				                                "has_3d": 1,
-				                                "sale_img": "",
-				                                "type_text": "合租",
-				                                "inv_id": "924527",
-				                                "inv_no": "789679119",
-				                                "code": "SHZRGY0819474236_01",
-				                                "house_code": "SHZRGY0819474236",
-				                                "turn": 0,
-				                                "bedroom": 3,
-				                                "parlor": 1,
-				                                "resblock_id": "5011000012924",
-				                                "resblock_name": "华高二村",
-				                                "lng": 121.623003,
-				                                "lat": 31.286956,
-				                                "face": "南",
-				                                "photo_webp": "//img.ziroom.com/pic/house_images/g2m2/M00/84/32/CtgFCV1FiKOAekiQAAJAg7dNX2A503.JPG_C_240_180_Q100.jpg",
-				                                "photo_min": "//img.ziroom.com/pic/house_images/g2m2/M00/84/32/CtgFCV1FiKOAekiQAAJAg7dNX2A503.JPG_C_240_180_Q100.webp",
-				                                "photo_min_webp": "//img.ziroom.com/pic/house_images/g2m2/M00/84/32/CtgFCV1FiKOAekiQAAJAg7dNX2A503.JPG_C_240_180_Q100.webp",
-				                                "house_type": 1,
-				                                "area_order": 12.5,
-				                                "sort_score": 8.723,
-				                                "air_qualified": 1,
-				                                "air_quality": 2,
-				                                "activity_marks": [],
-				                                "is_ai_lock": 1,
-				                                "can_sign_date": 1567440000,
-				                                "can_sign_time": 1565920800,
-				                                "can_reserve_time": 0,
-				                                "can_sign_long": 1,
-				                                "sale_status": 3,
-				                                "stock_status": "201",
-				                                "apartment_type": 1,
-				                                "commute_info": "",
-				                                "title_tag": 5,
-				                                "intro_list": [{
-				                                    "icon": "https://image.ziroom.com/g2m1/M00/66/71/ChAFB1vk_O6ASX5vAAAEQEpAQUE464.png",
-				                                    "title": "空气质量已检测, 已空置14天",
-				                                    "is_marked": 0
-				                                }, {
-				                                    "icon": "https://image.ziroom.com/g2m1/M00/67/9D/ChAFBlvk_PmAQNRIAAACNwPDlpM637.png",
-				                                    "title": "预计2019-09-03可入住",
-				                                    "is_marked": 0
-				                                }],
-				                                "tags": [{
-				                                    "title": "深呼吸",
-				                                    "bg_img": "https://image.ziroom.com/g2m1/M00/42/73/ChAFBlvW2J6AZtJtAAAfl2T06pY936.png"
-				                                }, {
-				                                    "title": "离地铁近"
-				                                }, {
-				                                    "title": "拿铁4.0"
-				                                }],
-				                                "subway_station_info": "小区距12号线金京路站步行约342米",
-				                                "source": "search"
-				                            },
-				    {
-				                                "id": "62462347",
-				                                "house_id": "60389834",
-				                                "type": 1,
-				                                "name": "金光小区3居室-南卧",
-				                                "price": ["//static8.ziroom.com/phoenix/pc/images/price/da4554c01a8c0563bf7fc106c3934722s.png", [7, 8, 0, 2]],
-				                                "area": "11.1",
-				                                "price_unit": "/月",
-				                                "photo": "//img.ziroom.com/pic/house_images/g2m2/M00/23/67/CtgFCF0xvc-ANYnEAA2s34yWTGk919.jpg_C_240_180_Q100.jpg",
-				                                "floor_total": "6",
-				                                "floor": "6",
-				                                "has_video": 1,
-				                                "has_3d": 0,
-				                                "sale_img": "",
-				                                "type_text": "合租",
-				                                "inv_id": "912754",
-				                                "inv_no": "788537138",
-				                                "code": "SHZRGY0819468283_01",
-				                                "house_code": "SHZRGY0819468283",
-				                                "turn": 0,
-				                                "bedroom": 3,
-				                                "parlor": 1,
-				                                "resblock_id": "5011000009612",
-				                                "resblock_name": "金光小区",
-				                                "lng": 121.519165,
-				                                "lat": 31.15065,
-				                                "face": "南",
-				                                "photo_webp": "//img.ziroom.com/pic/house_images/g2m2/M00/23/67/CtgFCF0xvc-ANYnEAA2s34yWTGk919.jpg_C_240_180_Q100.jpg",
-				                                "photo_min": "//img.ziroom.com/pic/house_images/g2m2/M00/23/67/CtgFCF0xvc-ANYnEAA2s34yWTGk919.jpg_C_240_180_Q100.webp",
-				                                "photo_min_webp": "//img.ziroom.com/pic/house_images/g2m2/M00/23/67/CtgFCF0xvc-ANYnEAA2s34yWTGk919.jpg_C_240_180_Q100.webp",
-				                                "house_type": 1,
-				                                "area_order": 11.1,
-				                                "sort_score": 8.694,
-				                                "air_qualified": 1,
-				                                "air_quality": 2,
-				                                "activity_marks": [],
-				                                "is_ai_lock": 1,
-				                                "can_sign_date": 1566144000,
-				                                "can_sign_time": 1564884000,
-				                                "can_reserve_time": 0,
-				                                "can_sign_long": 1,
-				                                "sale_status": 3,
-				                                "stock_status": "201",
-				                                "apartment_type": 1,
-				                                "commute_info": "",
-				                                "title_tag": 5,
-				                                "intro_list": [{
-				                                    "icon": "https://image.ziroom.com/g2m1/M00/66/71/ChAFB1vk_O6ASX5vAAAEQEpAQUE464.png",
-				                                    "title": "空气质量已检测, 已空置29天",
-				                                    "is_marked": 0
-				                                }, {
-				                                    "icon": "https://image.ziroom.com/g2m1/M00/67/9D/ChAFBlvk_PmAQNRIAAACNwPDlpM637.png",
-				                                    "title": "预计2019-08-19可入住",
-				                                    "is_marked": 0
-				                                }],
-				                                "tags": [{
-				                                    "title": "深呼吸",
-				                                    "bg_img": "https://image.ziroom.com/g2m1/M00/42/73/ChAFBlvW2J6AZtJtAAAfl2T06pY936.png"
-				                                }, {
-				                                    "title": "离地铁近"
-				                                }, {
-				                                    "title": "拿铁4.0"
-				                                }],
-				                                "subway_station_info": "小区距11号线三林站步行约367米",
-				                                "source": "search"
-				                            },
-				    {
-				                                "id": "62505385",
-				                                "house_id": "60397334",
-				                                "type": 1,
-				                                "name": "通河一村2居室-南卧",
-				                                "price": ["//static8.ziroom.com/phoenix/pc/images/price/da4554c01a8c0563bf7fc106c3934722s.png", [7, 4, 8, 2]],
-				                                "area": "14.5",
-				                                "price_unit": "/月",
-				                                "photo": "//img.ziroom.com/pic/house_images/g2m2/M00/96/2D/CtgFCF1JRiOAQewnAChHZg72XT8173.jpg_C_240_180_Q100.jpg",
-				                                "floor_total": "6",
-				                                "floor": "5",
-				                                "has_video": 1,
-				                                "has_3d": 0,
-				                                "sale_img": "",
-				                                "type_text": "合租",
-				                                "inv_id": "929420",
-				                                "inv_no": "790153740",
-				                                "code": "SHZRGY0819475719_02",
-				                                "house_code": "SHZRGY0819475719",
-				                                "turn": 0,
-				                                "bedroom": 2,
-				                                "parlor": 1,
-				                                "resblock_id": "5011000013627",
-				                                "resblock_name": "通河一村",
-				                                "lng": 121.455213,
-				                                "lat": 31.34101,
-				                                "face": "南",
-				                                "photo_webp": "//img.ziroom.com/pic/house_images/g2m2/M00/96/2D/CtgFCF1JRiOAQewnAChHZg72XT8173.jpg_C_240_180_Q100.jpg",
-				                                "photo_min": "//img.ziroom.com/pic/house_images/g2m2/M00/96/2D/CtgFCF1JRiOAQewnAChHZg72XT8173.jpg_C_240_180_Q100.webp",
-				                                "photo_min_webp": "//img.ziroom.com/pic/house_images/g2m2/M00/96/2D/CtgFCF1JRiOAQewnAChHZg72XT8173.jpg_C_240_180_Q100.webp",
-				                                "house_type": 1,
-				                                "area_order": 14.5,
-				                                "sort_score": 8.692,
-				                                "air_qualified": 1,
-				                                "air_quality": 2,
-				                                "activity_marks": [],
-				                                "is_ai_lock": 1,
-				                                "can_sign_date": 1567699200,
-				                                "can_sign_time": 1566007200,
-				                                "can_reserve_time": 0,
-				                                "can_sign_long": 1,
-				                                "sale_status": 3,
-				                                "stock_status": "201",
-				                                "apartment_type": 1,
-				                                "commute_info": "",
-				                                "title_tag": 5,
-				                                "intro_list": [{
-				                                    "icon": "https://image.ziroom.com/g2m1/M00/66/71/ChAFB1vk_O6ASX5vAAAEQEpAQUE464.png",
-				                                    "title": "空气质量已检测, 已空置11天",
-				                                    "is_marked": 0
-				                                }, {
-				                                    "icon": "https://image.ziroom.com/g2m1/M00/67/9D/ChAFBlvk_PmAQNRIAAACNwPDlpM637.png",
-				                                    "title": "预计2019-09-06可入住",
-				                                    "is_marked": 0
-				                                }],
-				                                "tags": [{
-				                                    "title": "深呼吸",
-				                                    "bg_img": "https://image.ziroom.com/g2m1/M00/42/73/ChAFBlvW2J6AZtJtAAAfl2T06pY936.png"
-				                                }, {
-				                                    "title": "离地铁近"
-				                                }, {
-				                                    "title": "木棉4.0"
-				                                }],
-				                                "subway_station_info": "小区距1号线通河新村站步行约821米",
-				                                "source": "search"
-				                            },
-				    {
-				                                "id": "62490512",
-				                                "house_id": "60394650",
-				                                "type": 1,
-				                                "name": "好世凤凰城4居室-南卧",
-				                                "price": ["//static8.ziroom.com/phoenix/pc/images/price/da4554c01a8c0563bf7fc106c3934722s.png", [7, 0, 6, 2]],
-				                                "area": "18.5",
-				                                "price_unit": "/月",
-				                                "photo": "//img.ziroom.com/pic/house_images/g2m2/M00/43/35/CtgFCV04Fd2AGQN0AANrfD3lAlw679.jpg_C_240_180_Q100.jpg",
-				                                "floor_total": "7",
-				                                "floor": "4",
-				                                "has_video": 1,
-				                                "has_3d": 0,
-				                                "sale_img": "",
-				                                "type_text": "合租",
-				                                "inv_id": "921705",
-				                                "inv_no": "789405385",
-				                                "code": "SHZRGY0819473051_05",
-				                                "house_code": "SHZRGY0819473051",
-				                                "turn": 0,
-				                                "bedroom": 4,
-				                                "parlor": 1,
-				                                "resblock_id": "5011000015536",
-				                                "resblock_name": "好世凤凰城",
-				                                "lng": 121.398349,
-				                                "lat": 31.096778,
-				                                "face": "南",
-				                                "photo_webp": "//img.ziroom.com/pic/house_images/g2m2/M00/43/35/CtgFCV04Fd2AGQN0AANrfD3lAlw679.jpg_C_240_180_Q100.jpg",
-				                                "photo_min": "//img.ziroom.com/pic/house_images/g2m2/M00/43/35/CtgFCV04Fd2AGQN0AANrfD3lAlw679.jpg_C_240_180_Q100.webp",
-				                                "photo_min_webp": "//img.ziroom.com/pic/house_images/g2m2/M00/43/35/CtgFCV04Fd2AGQN0AANrfD3lAlw679.jpg_C_240_180_Q100.webp",
-				                                "house_type": 1,
-				                                "area_order": 18.5,
-				                                "sort_score": 8.689,
-				                                "air_qualified": 1,
-				                                "air_quality": 2,
-				                                "activity_marks": [],
-				                                "is_ai_lock": 1,
-				                                "can_sign_date": 1566576000,
-				                                "can_sign_time": 1564884000,
-				                                "can_reserve_time": 0,
-				                                "can_sign_long": 1,
-				                                "sale_status": 3,
-				                                "stock_status": "201",
-				                                "apartment_type": 1,
-				                                "commute_info": "",
-				                                "title_tag": 5,
-				                                "intro_list": [{
-				                                    "icon": "https://image.ziroom.com/g2m1/M00/66/71/ChAFB1vk_O6ASX5vAAAEQEpAQUE464.png",
-				                                    "title": "空气质量已检测, 已空置24天",
-				                                    "is_marked": 0
-				                                }, {
-				                                    "icon": "https://image.ziroom.com/g2m1/M00/67/9D/ChAFBlvk_PmAQNRIAAACNwPDlpM637.png",
-				                                    "title": "预计2019-08-24可入住",
-				                                    "is_marked": 0
-				                                }],
-				                                "tags": [{
-				                                    "title": "深呼吸",
-				                                    "bg_img": "https://image.ziroom.com/g2m1/M00/42/73/ChAFBlvW2J6AZtJtAAAfl2T06pY936.png"
-				                                }, {
-				                                    "title": "离地铁近"
-				                                }, {
-				                                    "title": "木棉4.0"
-				                                }],
-				                                "subway_station_info": "小区距5号线银都路站步行约416米",
-				                                "source": "search"
-				                            },
-				    {
-				                                "id": "62477580",
-				                                "house_id": "60392484",
-				                                "type": 1,
-				                                "name": "上泰花苑3居室-南卧",
-				                                "price": ["//static8.ziroom.com/phoenix/pc/images/price/da4554c01a8c0563bf7fc106c3934722s.png", [7, 9, 8, 2]],
-				                                "area": "13",
-				                                "price_unit": "/月",
-				                                "photo": "//img.ziroom.com/pic/house_images/g2m2/M00/66/64/CtgFCV0_Ap-AI4dFAAIDx-yTEdI250.jpg_C_240_180_Q100.jpg",
-				                                "floor_total": "6",
-				                                "floor": "4",
-				                                "has_video": 1,
-				                                "has_3d": 0,
-				                                "sale_img": "",
-				                                "type_text": "合租",
-				                                "inv_id": "917020",
-				                                "inv_no": "788950940",
-				                                "code": "SHZRGY0819470906_02",
-				                                "house_code": "SHZRGY0819470906",
-				                                "turn": 0,
-				                                "bedroom": 3,
-				                                "parlor": 1,
-				                                "resblock_id": "5011000016184",
-				                                "resblock_name": "上泰花苑",
-				                                "lng": 121.57003,
-				                                "lat": 31.253643,
-				                                "face": "南",
-				                                "photo_webp": "//img.ziroom.com/pic/house_images/g2m2/M00/66/64/CtgFCV0_Ap-AI4dFAAIDx-yTEdI250.jpg_C_240_180_Q100.jpg",
-				                                "photo_min": "//img.ziroom.com/pic/house_images/g2m2/M00/66/64/CtgFCV0_Ap-AI4dFAAIDx-yTEdI250.jpg_C_240_180_Q100.webp",
-				                                "photo_min_webp": "//img.ziroom.com/pic/house_images/g2m2/M00/66/64/CtgFCV0_Ap-AI4dFAAIDx-yTEdI250.jpg_C_240_180_Q100.webp",
-				                                "house_type": 1,
-				                                "area_order": 13,
-				                                "sort_score": 8.65,
-				                                "air_qualified": 1,
-				                                "air_quality": 2,
-				                                "activity_marks": [],
-				                                "is_ai_lock": 1,
-				                                "can_sign_date": 1567008000,
-				                                "can_sign_time": 1565661600,
-				                                "can_reserve_time": 0,
-				                                "can_sign_long": 1,
-				                                "sale_status": 3,
-				                                "stock_status": "201",
-				                                "apartment_type": 1,
-				                                "commute_info": "",
-				                                "title_tag": 5,
-				                                "intro_list": [{
-				                                    "icon": "https://image.ziroom.com/g2m1/M00/66/71/ChAFB1vk_O6ASX5vAAAEQEpAQUE464.png",
-				                                    "title": "空气质量已检测, 已空置19天",
-				                                    "is_marked": 0
-				                                }, {
-				                                    "icon": "https://image.ziroom.com/g2m1/M00/67/9D/ChAFBlvk_PmAQNRIAAACNwPDlpM637.png",
-				                                    "title": "预计2019-08-29可入住",
-				                                    "is_marked": 0
-				                                }],
-				                                "tags": [{
-				                                    "title": "深呼吸",
-				                                    "bg_img": "https://image.ziroom.com/g2m1/M00/42/73/ChAFBlvW2J6AZtJtAAAfl2T06pY936.png"
-				                                }, {
-				                                    "title": "离地铁近"
-				                                }, {
-				                                    "title": "拿铁4.0"
-				                                }],
-				                                "subway_station_info": "小区距6号线德平路站步行约281米",
-				                                "source": "search"
-				                            },
-				    {
-				                                "id": "62378489",
-				                                "house_id": "60375531",
-				                                "type": 1,
-				                                "name": "绿地清猗园(威廉公馆)3居室-南卧",
-				                                "price": ["//static8.ziroom.com/phoenix/pc/images/price/da4554c01a8c0563bf7fc106c3934722s.png", [7, 0, 6, 2]],
-				                                "area": "11.5",
-				                                "price_unit": "/月",
-				                                "photo": "//img.ziroom.com/pic/house_images/g2m2/M00/62/95/CtgFCV0Mv_eAeOqRAAKJihzaYIU087.JPG_C_240_180_Q100.jpg",
-				                                "floor_total": "20",
-				                                "floor": "7",
-				                                "has_video": 1,
-				                                "has_3d": 0,
-				                                "sale_img": "",
-				                                "type_text": "合租",
-				                                "inv_id": "884052",
-				                                "inv_no": "785753044",
-				                                "code": "SHZRGY0819453856_03",
-				                                "house_code": "SHZRGY0819453856",
-				                                "turn": 0,
-				                                "bedroom": 3,
-				                                "parlor": 1,
-				                                "resblock_id": "5011000001988",
-				                                "resblock_name": "绿地清猗园(威廉公馆)",
-				                                "lng": 121.324209,
-				                                "lat": 31.3033,
-				                                "face": "南",
-				                                "photo_webp": "//img.ziroom.com/pic/house_images/g2m2/M00/62/95/CtgFCV0Mv_eAeOqRAAKJihzaYIU087.JPG_C_240_180_Q100.jpg",
-				                                "photo_min": "//img.ziroom.com/pic/house_images/g2m2/M00/62/95/CtgFCV0Mv_eAeOqRAAKJihzaYIU087.JPG_C_240_180_Q100.webp",
-				                                "photo_min_webp": "//img.ziroom.com/pic/house_images/g2m2/M00/62/95/CtgFCV0Mv_eAeOqRAAKJihzaYIU087.JPG_C_240_180_Q100.webp",
-				                                "house_type": 1,
-				                                "area_order": 11.5,
-				                                "sort_score": 8.647,
-				                                "air_qualified": 1,
-				                                "air_quality": 2,
-				                                "activity_marks": [],
-				                                "is_ai_lock": 1,
-				                                "can_sign_date": 1565971200,
-				                                "can_sign_time": 1563746462,
-				                                "can_reserve_time": 0,
-				                                "can_sign_long": 1,
-				                                "sale_status": 3,
-				                                "stock_status": "201",
-				                                "apartment_type": 1,
-				                                "commute_info": "",
-				                                "title_tag": 1,
-				                                "intro_list": [{
-				                                    "icon": "https://image.ziroom.com/g2m1/M00/66/71/ChAFB1vk_OSAA2ZBAAAEqwrFIBo493.png",
-				                                    "title": "空气质量已检测, 空置已超过30天",
-				                                    "is_marked": 0
-				                                }],
-				                                "tags": [{
-				                                    "title": "深呼吸",
-				                                    "bg_img": "https://image.ziroom.com/g2m1/M00/42/73/ChAFBlvW2J6AZtJtAAAfl2T06pY936.png"
-				                                }, {
-				                                    "title": "离地铁近"
-				                                }, {
-				                                    "title": "木棉4.0"
-				                                }],
-				                                "subway_station_info": "小区距11号线南翔站步行约661米",
-				                                "source": "search"
-				                            }
+				city: '上海市',
+				searchParams: {
+					college: '',
+					cotenant_type: '',
+					province: '',
+					city: '',
+					district: '',
+					cotenant_count: ''
+				},
+				cotenantType: '',
+				cotenantCount: '',
+				rentTypeList: [
+					{name: '不限', value: ''},
+					{name: '预租', value: 1},
+					{name: '合租', value: 2},
 				],
-				loadingText: '正在加载...'
+				roomCountList: [
+					{name: '不限', value: ''},
+					{name: '2户合租', value: 2},
+					{name: '3户合租', value: 3},
+					{name: '4户合租', value: 4},
+					{name: '5户合租', value: 5}
+				],
+				//精选列表
+				productList: [],
+				loadingText: '',
+				showSelectCity: false,
+				hotCitys: ['上海市', '北京市', '广州市', '深圳市', '杭州市', '天津市', '武汉市', '重庆市', '成都市', '苏州市', '苏州市', '南京市', '荆州市'],
+				value: '杭州',
+				windowHeight: '',
+				scrollIntoId: 'F',
+				current: this.city,
+				tempCurrentCity: ''
 			};
 		},
-		onLoad() {
-			// // #ifdef MP
-			// //小程序隐藏返回按钮
-			// this.showBack = false;
-			// // #endif
-			// this.amapPlugin = new amap.AMapWX({
-			// 	//高德地图KEY，随时失效，请务必替换为自己的KEY，参考：http://ask.dcloud.net.cn/article/35070
-			// 	key: '9ed923f211c10ddace864fd7309ebb71'
-			// });
-			// //定位地址
-			// this.amapPlugin.getRegeo({
-			// 	success: data => {
-			// 		this.city = data[0].regeocodeData.addressComponent.city.replace(/市/g, ''); //把"市"去掉
-			// 		// #ifdef APP-PLUS
-			// 		this.nVueTitle.postMessage({type: 'location',city:this.city});
-			// 		// #endif
-			// 	}
-			// });
-
+		
+		computed: {  
+		    ...mapState(['emptyRoomPic'])  
 		},
-		onPageScroll(e) {
-			//锚点切换
-			// this.selectAnchor = e.scrollTop>=this.anchorlist[2].top?2:e.scrollTop>=this.anchorlist[1].top?1:0;
-			// //导航栏渐变
-			// let tmpY = 375;
-			// e.scrollTop = e.scrollTop > tmpY ? 375 : e.scrollTop;
-			// this.afterHeaderOpacity = e.scrollTop * (1 / tmpY);
-			// this.beforeHeaderOpacity = 1 - this.afterHeaderOpacity;
-			// //切换层级
-			// this.beforeHeaderzIndex = e.scrollTop > 0 ? 10 : 11;
-			// this.afterHeaderzIndex = e.scrollTop > 0 ? 11 : 10;
+		
+		onLoad() {
+			this.getSystemInfo()
+			this.init()
+			this.amapPlugin = new amap.AMapWX({
+				//高德地图KEY，随时失效，请务必替换为自己的KEY，参考：http://ask.dcloud.net.cn/article/35070
+				key: '7c235a9ac4e25e482614c6b8eac6fd8e'
+			});
+			
+			this.initPosition()
+			
+			
+			// let curPage = this.getCurPage();
+			//在微信小程序或是app中，通过curPage.options；如果是H5，则需要curPage.$route.query（H5中的curPage.options为undefined，所以刚好就不需要条件编译了）
+			// let curParam = curPage.options || curPage.$route.query;
+		},
+	
+		onShow() {
+			this.getGroupList()
+			this.$store.dispatch('getusermsg')
+			// uni.getStorage({
+			//     key: 'hometype',
+			//     success: (res) => {
+			// 		if (res.data == 2) {
+			// 			this.getGroupList()
+			// 		}
+			//     }
+			// });
+			// uni.setStorage({key: 'hometype', data: '1'});
+		},
+		
+		watch: {
+			'searchParams.province' (newVal) {
+				this.tabBtnList[0].checked = !!newVal
+			},
+			'searchParams.cotenant_type' (newVal) {
+				this.tabBtnList[1].checked = !!newVal
+			},
+			'searchParams.cotenant_count' (newVal) {
+				this.tabBtnList[2].checked = !!newVal
+			}
 		},
 		methods: {
+			reloadPosition() {
+				this.initPosition()
+			},
+			
+			initPosition () {
+				//定位地址
+				this.amapPlugin.getRegeo({
+					success: data => {
+						if (typeof data[0].regeocodeData.addressComponent.city == 'string') {
+							this.city = data[0].regeocodeData.addressComponent.city; 
+							this.activeCity = data[0].regeocodeData.addressComponent.city
+						} else if (typeof data[0].regeocodeData.addressComponent.province == 'string') {
+							this.city = data[0].regeocodeData.addressComponent.province; 
+							this.activeProvince = data[0].regeocodeData.addressComponent.province
+						} else {
+							this.city = '上海市';
+							this.activeProvince = '上海市'
+						}
+						this.searchParams.province = this.activeCity || this.activeProvince
+						// #ifdef APP-PLUS
+						// this.nVueTitle.postMessage({type: 'location',city:this.city});
+						// #endif
+						this.getGroupList()
+					},
+					fail: err => {
+						this.getGroupList()
+						console.log(err)
+					}
+				});
+				this.current = this.city
+			},
+			
+			getSystemInfo() {
+			  uni.getSystemInfo().then(res => {
+			    let [error, data] = res
+			    this.windowHeight = `${data.windowHeight}px`
+			  })
+			},
+			
+			
+			scrollTo(letter) {
+			  this.scrollIntoId = letter === '#' ? 'current' : letter
+			},
+			
+			toggleSelectCity () {
+				this.showSelectCity = true
+			},
+			
+			confirmSelectCity () {
+				this.searchParams.province = ''
+				this.searchParams.district = ''
+				this.searchParams.city = this.current
+				this.activeProvince = ''
+				this.activeCity = ''
+				this.activeArea = ''
+				this.showSelectCity = false
+				this.city = this.current
+				this.getGroupList()
+			},
+			cancelSelectCity () {
+				this.showSelectCity = false
+				this.getGroupList()
+			},
+			onSelect(city) {
+			  this.current = city
+			},
+			getCurPage(){
+			    let pages = getCurrentPages();
+			    let curPage = pages[pages.length-1];
+			    return curPage
+			},
+			init() {
+				this.provinceDataList = provinceData;
+				this.cityDataList = cityData[this.pickerValueDefault[0]];
+				this.areaDataList = areaData[this.pickerValueDefault[0]][this.pickerValueDefault[1]];
+				this.pickerValue = this.pickerValueDefault;
+			},
+			
+			confirmPosition() {
+				this.searchParams.province = this.activeProvince
+				this.searchParams.city = this.activeCity
+				this.searchParams.district = this.activeArea
+				this.activeTab = '0'
+				this.city = this.current
+				// this.city = this.activeCity
+				this.getGroupList()
+			},
+			
+			cancelPosition() {
+				this.activeTab = '0'
+			},
+			
+			chooseEmptyProvince() {
+				this.activeProvince = ''
+				this.activeCity = ''
+				this.activeArea = ''
+				this.cityDataList = []
+				this.areaDataList = []
+			},
+			
+			chooseEmptyCity () {
+				this.activeCity = ''
+				this.activeArea = ''
+				this.areaDataList = []
+			},
+			
+			chooseEmptyArea () {
+				this.activeArea = ''
+			},
+			
+			chooseProvince(value,index) {
+				this.activeProvince = value.label
+				this.pickerValueDefault[0] = index
+				this.cityDataList = cityData[this.pickerValueDefault[0]];
+				this.areaDataList = areaData[this.pickerValueDefault[0]][this.pickerValueDefault[1]];
+			},
+			
+			chooseCity(value,index) {
+				this.activeCity = value.label
+				this.pickerValueDefault[1] = index
+				this.areaDataList = areaData[this.pickerValueDefault[0]][this.pickerValueDefault[1]];
+			},
+			
+			chooseArea(value,index) {
+				this.activeArea = value.label
+				this.pickerValueDefault[2] = index
+			},
+			
+			clearKeyword() {
+				this.searchParams.college = ''
+				this.getGroupList()
+				
+				
+			},
+			
 			toggleTab (item) {
 				this.activeTab = item.value
 			},
 			 
-			toGoods () {
+			toGoods (item) {
 				uni.navigateTo({
-					url:'/pages/rent/detail'
+					url: `/pages/home/detail?id=${item.id}`
 				})
 			},
+			
 			release () {
-				uni.showToast({title: '注册成功',icon:"success"});
 				uni.navigateTo({
 					url:'/pages/release/release'
 				})
 				
 			},
-			// 清空搜索
-			clearKeyword (){
-				
+			
+			cancelType() {
+				this.cotenantType = this.searchParams.cotenant_type
+				this.activeTab = '0'
+			}, 
+			
+			cancelCount() {
+				this.cotenantCount = this.searchParams.cotenant_count
+				this.activeTab = '0'
+			}, 
+			
+			confirmType() {
+				this.searchParams.cotenant_type = this.cotenantType
+				this.getGroupList()
 			},
-			// 搜索
-			toSearch () {
-				
+			
+			confirmCount() {
+				this.searchParams.cotenant_count = this.cotenantCount
+				this.getGroupList()
 			},
-			//跳转锚点
-			toAnchor(index){
-				this.selectAnchor = index;
-				uni.pageScrollTo({scrollTop: this.anchorlist[index].top,duration: 200});
+			
+			changeRentType(value) {
+				this.cotenantType = value
 			},
-			//消息列表
-			toMsg(){
-				uni.navigateTo({
-					url:'../msg/msg'
+			
+			changeRentCount(value) {
+				this.cotenantCount = value
+			},
+			
+			getGroupList () {
+				this.activeTab = '0'
+				// this.loadModal = true
+				let params = {}
+				if (this.searchParams.college) {
+					params.college = this.searchParams.college
+				}
+				if (this.searchParams.cotenant_type) {
+					params.cotenantType = this.searchParams.cotenant_type
+				}
+				if (this.searchParams.province) {
+					params.province = this.searchParams.province
+				}
+				if (this.searchParams.city) {
+					params.city = this.searchParams.city
+				}
+				if (this.searchParams.district) {
+					params.district = this.searchParams.district
+				}
+				params.cotenantCount = this.searchParams.cotenant_count
+				this.loadingText = '正在加载...'
+				console.log(params)
+				this.$api.getGroupList(params).then(res => {
+					this.loadModal = false
+					res.data.forEach((item) => {
+						item.imgUrlList = item.chamber_img_url && item.chamber_img_url.split(',') || []
+					})
+					this.productList = res.data
+					if (!res.data.length) {
+						this.loadingText = '暂无更多数据'
+					} else {
+						this.loadingText = ''
+					}
+				}).catch(err => {
+					this.loadModal = false
+					this.loadingText = ''
 				})
 			}
-		},
-		// #ifndef MP
-		// 标题栏input搜索框点击
-		// onNavigationBarSearchInputClicked: async function(e) {
-		// 	this.$api.msg('点击了搜索框');
-		// },
-		//点击导航栏 buttons 时触发
-		// onNavigationBarButtonTap(e) {
-		// 	const index = e.index;
-		// 	if (index === 0) {
-		// 		this.$api.msg('点击了扫描');
-		// 	} else if (index === 1) {
-		// 		// #ifdef APP-PLUS
-		// 		const pages = getCurrentPages();
-		// 		const page = pages[pages.length - 1];
-		// 		const currentWebview = page.$getAppWebview();
-		// 		currentWebview.hideTitleNViewButtonRedDot({
-		// 			index
-		// 		});
-		// 		// #endif
-		// 		uni.navigateTo({
-		// 			url: '/pages/notice/notice'
-		// 		})
-		// 	}
-		// }
-		// #endif
+		}
 	}
 </script>
 
 <style lang="scss">
+	.home-page{
+		background-color: #fff;
+		min-height: 100vh;
+	}
+	.choose-city-wrap{
+		position: fixed;
+		top: 0;
+		width: 100%;
+		height: 100%;
+		background-color: rgba(0,0,0,0.3);
+		z-index: 999;
+		.content-wrap{
+			padding: 0 2%;
+			width: 100%;
+			background-color: #fff;
+			.select-city {
+				padding-top: 80px;
+				background-color: #fff;
+				padding-bottom: 100px;
+				.content{
+					padding-bottom: 120px;
+					.city-footer{
+						position: fixed;
+						width: 100%;
+						bottom: 0;
+						padding: 20upx 56upx 4upx;
+						text-align: right;
+						background-color: #fff;
+					}
+				}
+			  .index {
+			    position: absolute;
+			    top: 120px;
+				right: 0;
+			    bottom: 20upx;
+			    z-index: 999;
+			    color: #2f9bfe;
+			    font-size: 32upx;
+			    .index-item {
+			      width: 40upx;
+			      height: 42upx;
+			      line-height: 42upx;
+				  padding-right: 10rpx;
+			      text-align: center;
+				  color: #ccc;
+				  &.active{
+					  color: #2f9bfe;
+				  }
+			    }
+			  }
+			  .section {
+			    margin-bottom: 19upx;
+			    .city-title {
+			      color: #333;
+			      font-size: 28upx;
+			      margin-bottom: 28upx;
+			    }
+			    .letter {
+			      width: 44upx;
+			      height: 44upx;
+			      color: #fff;
+			      border-radius: 100%;
+			      background-color: #2f9bfe;
+			      font-size: 28upx;
+			      line-height: 44upx;
+			      text-align: center;
+			      margin-bottom: 30upx;
+			    }
+			    .city-list {
+			      display: flex;
+			      flex-wrap: wrap;
+				  padding-left: 30upx;
+			      .city-item {
+			        width: 190upx;
+			        height: 55upx;
+			        margin-right: 36upx;
+			        margin-bottom: 28upx;
+			        line-height: 55upx;
+			        text-align: center;
+			        border: 1px solid #dcdcdc;
+			        border-radius: 6upx;
+			        color: #999;
+			        font-size: 28upx;
+			        &.active {
+			          background-color: #d5ebff;
+			          border-color: #2f9bfe;
+			          color: #2f9bfe;
+			        }
+			      }
+			    }
+			  }
+			}
+		}
+	}
+	.position-model{
+		position: fixed;
+		top: 0;
+		width: 100%;
+		height: 100%;
+		background-color: rgba(0,0,0,0.3);
+		z-index: 999;
+		.content{
+			// position: absolute;
+			// top: 80upx;
+			margin-top: 218upx;
+			width: 100%;
+			height: 62%;
+			background-color: #fff;
+			padding-top: 12upx;
+			padding-bottom: 22upx;
+			.container{
+				display: flex;
+				height: 100%;
+				.list{
+					flex: 1;
+					overflow-y: scroll;
+					border-right: 1upx solid #F5F5F5;
+					.item{
+						height: 70upx;
+						line-height: 70upx;
+						padding-left: 36upx;
+						overflow: hidden;
+						text-overflow:ellipsis;
+						white-space: nowrap;
+						&.active{
+							background-color: $font-color-orange;
+							color: #fff;
+						}
+					}
+				}
+			}
+		}
+		.position-footer-wraper{
+			text-align: right;
+			padding: 24upx;
+			background-color: #fff;
+		}
+	}
 	// 列表数据
 		.goods-list {
 		// background-color: #f4f4f4;
@@ -877,7 +649,6 @@
 			font-size: 24upx;
 		}
 		.product-list {
-			width: 92%;
 			padding: 0 4% 3vw 4%;
 			display: flex;
 			justify-content: space-between;
@@ -892,7 +663,9 @@
 				box-shadow: 0upx 5upx 25upx rgba(0, 0, 0, 0.1);
 				image {
 					width: 38%;
-					border-radius: 20upx 20upx 0 0;
+					height: 92%;
+					border-radius: 10upx;
+					margin-top: 2%;
 				}
 				.content{
 					width: 58%;
@@ -900,34 +673,15 @@
 						width: 92%;
 						padding: 10upx 4%;
 					}
-					.address{
-						font-size: $uni-font-size-base;
-					}
 				}
 				.name {
-					display: -webkit-box;
-					-webkit-box-orient: vertical;
-					-webkit-line-clamp: 2;
 					text-align: justify;
 					overflow: hidden;
-					font-size: 30upx;
+					font-size: $uni-font-size-lg;
+					font-weight: 600;
 				}
 				.info {
-					display: flex;
-					justify-content: space-between;
-					align-items: flex-end;
-					padding: 10upx 0 10upx;
-					font-size: $uni-font-size-lg;
-
-					.price {
-						color: #e65339;
-						font-size: 30upx;
-						font-weight: 600;
-					}
-					.slogan {
-						color: #807c87;
-						font-size: 24upx;
-					}
+					font-size: $uni-font-size-sm;
 				}
 			}
 		}
@@ -935,27 +689,64 @@
 
 	// 切换tab
 	.tab-top-wraper{
+		position: relative;
 		display: flex;
 		background-color: #fff;
-		height: 80upx;
-		line-height: 80upx;
+		height: 40px;
+		line-height: 40upx;
 		margin-bottom: 20upx;
+		.tab-top-content{
+			position: absolute;
+			left: 0;
+			top: 80upx;
+			width: 100%;
+			min-height: 100upx;
+			padding: 20upx 40upx 40upx;
+			background-color: #fff;
+			z-index: 999;
+			box-sizing: border-box;
+		}
+		.tab-bot-content{
+		   display: flex;
+		   flex-wrap: wrap;
+		   view{
+			   &.checked text{
+			   			   color: $font-color-orange;
+			   			   border: 1upx solid $font-color-orange;
+			   }
+		    // display: in;
+		    width: 33%;
+		    text-align: left;
+		    height: 60upx;
+		    line-height: 60upx;
+			margin-bottom: 30upx;
+		    text{
+		     padding: 10upx 30upx;
+		     border: 1upx solid #f5f5f5;
+			 border-radius: 6upx;
+		    }
+		   }
+		  }
+		
 		.tab-item{
 			flex: 1;
 			text-align: center;
 			font-size: $font-base;
+			line-height: 80upx;
 			&.active{
 				color: $font-color-orange;
 				border-bottom: 2upx solid $font-color-orange;
 				// background-color: $font-color-orange;
+				.rotate {
+					transform: rotate(180deg);
+				}
 			}
 		}
 	}
 	.input-box-wraper{
 		display: flex;
 		align-items: center;
-		height: 84upx;
-		margin-top: 100upx;
+		height: 36px;
 		background-color: #fff;
 		.release-text{
 			flex-shrink: 0;
@@ -965,28 +756,36 @@
 			text-align: center;
 		}
 		.center-input{
-			width: 100%;
-			display: flex;
+			position: relative;
+			width: 60%;
 			background-color: #f5f5f5;
 			border-radius: 24upx;
+			height: 30px;
+			line-height: 30px;
 			uni-input{
-				flex: 1;
-				padding-left: 20upx;
-				height: 60upx;
-				line-height: 60upx;
-				padding: 0 16upx;
+				padding-left: 15upx;
+				padding-right: 52upx;
+				display: inline-block;
+				height: 30px;
 				font-size: $font-base !important;
 			}
 			// .uni-input-input{
-			// 	padding-left: 20upx;
-			// 	padding: 0 16upx;
+			// 	// padding-left: 20upx;
+			// 	padding: 0 4%;
 			// 	font-size: $font-base;
 			// }
-			// .clear-icon{
-			// 	width: 52upx;
-			// 	height: 60upx;
-			// 	line-height: 60upx;
-			// }
+			.clear-icon{
+				position: absolute;
+				top: 0;
+				right: 0px;
+				width: 70upx;
+				height: 60upx;
+				font-size: 32upx;
+				line-height: 32px;
+				color: #c0c0c0;
+				text-align: center;
+				z-index: 6;
+			}
 		}
 		.search-btn{
 			flex-shrink: 0;
@@ -1071,7 +870,7 @@
 					display: flex;
 					justify-content: center;
 					align-items: center;
-					font-size: 42upx;
+					font-size: 50upx;
 				}
 			}
 		}
@@ -1192,4 +991,15 @@
 			line-height: 1;
 		}
 	}
+	.top-xsj{
+		display: inline-block;
+		width: 0;
+		height: 0;
+		padding-left: 10upx; 
+		// content: ""; 
+		border:10upx solid transparent; 
+		border:10upx solid rgba(0,0,0,0.6);
+		border-left-color: #ff0000;
+	}
+
 </style>

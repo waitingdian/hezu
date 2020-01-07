@@ -4,27 +4,31 @@
     "iPhone",
     "iPad"
   ],
-  "id": "__UNI__3C1E6E5",
+  "id": "__UNI__1202016",
   "name": "校友合租",
   "version": {
     "name": "1.0.0",
     "code": "100"
   },
   "description": "校友合租",
-  "launch_path": "__uniapptabbar.html",
+  "launch_path": "__uniappview.html",
   "developer": {
     "name": "",
     "email": "",
     "url": ""
   },
   "permissions": {
+    "Maps": {
+      "coordType": "gcj02"
+    },
+    "Share": {},
     "UniNView": {
       "description": "UniNView原生渲染"
     }
   },
   "plus": {
     "useragent": {
-      "value": "uni-app appservice",
+      "value": "uni-app",
       "concatenate": true
     },
     "splashscreen": {
@@ -35,7 +39,9 @@
     },
     "popGesture": "close",
     "launchwebview": {
-      "render": "always"
+      "id": "1",
+      "kernel": "WKWebview",
+      "uni-app": "auto"
     },
     "statusbar": {
       "immersed": "supportedDevice",
@@ -46,12 +52,40 @@
     "distribute": {
       "icons": {
         "android": {
-          "hdpi": "C:/Users/Administrator/Desktop/logo.png"
+          "hdpi": "unpackage/res/icons/72x72.png",
+          "xhdpi": "unpackage/res/icons/96x96.png",
+          "xxhdpi": "unpackage/res/icons/144x144.png",
+          "xxxhdpi": "unpackage/res/icons/192x192.png"
+        },
+        "ios": {
+          "appstore": "unpackage/res/icons/1024x1024.png",
+          "ipad": {
+            "app": "unpackage/res/icons/76x76.png",
+            "app@2x": "unpackage/res/icons/152x152.png",
+            "notification": "unpackage/res/icons/20x20.png",
+            "notification@2x": "unpackage/res/icons/40x40.png",
+            "proapp@2x": "unpackage/res/icons/167x167.png",
+            "settings": "unpackage/res/icons/29x29.png",
+            "settings@2x": "unpackage/res/icons/58x58.png",
+            "spotlight": "unpackage/res/icons/40x40.png",
+            "spotlight@2x": "unpackage/res/icons/80x80.png"
+          },
+          "iphone": {
+            "app@2x": "unpackage/res/icons/120x120.png",
+            "app@3x": "unpackage/res/icons/180x180.png",
+            "notification@2x": "unpackage/res/icons/40x40.png",
+            "notification@3x": "unpackage/res/icons/60x60.png",
+            "settings@2x": "unpackage/res/icons/58x58.png",
+            "settings@3x": "unpackage/res/icons/87x87.png",
+            "spotlight@2x": "unpackage/res/icons/80x80.png",
+            "spotlight@3x": "unpackage/res/icons/120x120.png"
+          }
         }
       },
       "splashscreen": {
         "android": {
-          "hdpi": "C:/Users/Administrator/Desktop/logo.png"
+          "hdpi": "C:/Users/Administrator/Desktop/AA/微信图片_20191212230425.png",
+          "xhdpi": "C:/Users/Administrator/Desktop/AA/微信图片_20191212230425.png"
         }
       },
       "google": {
@@ -98,18 +132,50 @@
       }
     },
     "uni-app": {
-      "compilerVersion": "2.2.0",
+      "compilerVersion": "2.4.6",
       "control": "v8",
-      "nvueCompiler": "weex",
-      "renderer": "auto"
+      "nvueCompiler": "uni-app",
+      "renderer": "auto",
+      "nvue": {
+        "flex-direction": "column"
+      }
     },
-    "secondwebview": {
-      "id": "1",
-      "launch_path": "__uniappview.html",
-      "kernel": "WKWebview",
-      "mode": "child",
-      "top": 0,
-      "bottom": 56
+    "tabBar": {
+      "color": "#333333",
+      "selectedColor": "#f06c7a",
+      "borderStyle": "rgba(0,0,0,0.4)",
+      "backgroundColor": "#ffffff",
+      "list": [
+        {
+          "pagePath": "pages/home/home",
+          "iconPath": "static/img/tabBar/home1.png",
+          "selectedIconPath": "static/img/tabBar/home1-on.png",
+          "text": "精选"
+        },
+        {
+          "pagePath": "pages/rent/rent",
+          "iconPath": "static/img/tabBar/guanzhu.png",
+          "selectedIconPath": "static/img/tabBar/guanzhu-on.png",
+          "text": "我的合租"
+        },
+        {
+          "pagePath": "pages/chat/list",
+          "iconPath": "static/img/tabBar/news.png",
+          "selectedIconPath": "static/img/tabBar/news-on.png",
+          "text": "聊一聊"
+        },
+        {
+          "pagePath": "pages/user/mine",
+          "iconPath": "static/img/tabBar/me.png",
+          "selectedIconPath": "static/img/tabBar/me-on.png",
+          "text": "我的信息"
+        }
+      ],
+      "height": "50px",
+      "child": [
+        "lauchwebview"
+      ],
+      "selected": 0
     }
   }
 }

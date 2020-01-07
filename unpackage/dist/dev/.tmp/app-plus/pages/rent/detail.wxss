@@ -15,6 +15,9 @@
 /* 行为相关颜色 */
 /* 文字基本颜色 */
 /* 背景颜色 */
+.uni-custom-header-color {
+  background-image: #ffa800;
+}
 /* 边框颜色 */
 /* 尺寸变量 */
 /* 文字尺寸 */
@@ -33,108 +36,97 @@
 .txt-cut {
   overflow: hidden;
   white-space: nowrap;
-  -o-text-overflow: ellipsis;
-     text-overflow: ellipsis;
+  text-overflow: ellipsis;
 }
-.rent-detail .swiper {
-  width: 100%;
-  margin-top: 10rpx;
+.no-more-txt {
+  text-align: center;
+  padding: 20rpx;
+  color: #606266;
+}
+.rentdetail .cu-bar .content {
+  height: 70rpx;
+  line-height: 70rpx;
+}
+.rentdetail .content-title {
+  font-size: 36rpx;
+  padding: 46rpx 0 8rpx;
+  text-align: center;
+}
+.rentdetail .report-btn {
+  color: #999;
+}
+.rentdetail .cu-tag {
+  padding-top: 0;
+}
+.rentdetail .cu-tag[class*="line-"]::after {
+  border-radius: 4px;
+}
+.rentdetail .group-item-wraper {
+  padding-bottom: 40rpx;
+  border-bottom: 1px solid #e8e8e8;
+}
+.rentdetail .card-wraper {
+  position: relative;
+}
+.rentdetail .card-wraper .cu-tag {
+    position: absolute;
+    top: 6rpx;
+    right: 6rpx;
+}
+.rentdetail .card-wraper uni-image {
+    height: 100%;
+}
+.rentdetail .card-wraper .bg-shadeBottom {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background-color: transparent;
+    padding: 0px 12px;
+}
+.rentdetail .table-item {
   display: -webkit-box;
   display: -webkit-flex;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-      -ms-flex-pack: center;
-          justify-content: center;
+  border-top: 1px solid #ccc;
+  border-left: 1px solid #ccc;
 }
-.rent-detail .swiper .swiper-box {
-    width: 92%;
-    height: 30.7vw;
-    overflow: hidden;
-    border-radius: 15rpx;
-    -webkit-box-shadow: 0rpx 8rpx 25rpx rgba(0, 0, 0, 0.2);
-            box-shadow: 0rpx 8rpx 25rpx rgba(0, 0, 0, 0.2);
-    position: relative;
-    z-index: 1;
+.rentdetail .table-item text {
+    padding: 16rpx 0;
+    -webkit-box-flex: 1;
+    -webkit-flex: 1;
+            flex: 1;
+    border-right: 1px solid #ccc;
+    text-align: center;
 }
-.rent-detail .swiper .swiper-box swiper {
-      width: 100%;
-      height: 30.7vw;
+.rentdetail .table-item .operation {
+    color: #4399FC;
+    text-decoration: underline;
 }
-.rent-detail .swiper .swiper-box swiper swiper-item image {
-        width: 100%;
-        height: 30.7vw;
+.rentdetail .rent-info view {
+  padding: 6rpx 0;
 }
-.rent-detail .swiper .swiper-box .indicator {
-      position: absolute;
-      bottom: 20rpx;
-      left: 50%;
-      -webkit-transform: translateX(-50%);
-          -ms-transform: translateX(-50%);
-              transform: translateX(-50%);
-      background-color: rgba(255, 255, 255, 0.4);
-      width: 150rpx;
-      height: 5rpx;
-      border-radius: 3rpx;
-      overflow: hidden;
-      display: -webkit-box;
-      display: -webkit-flex;
-      display: -ms-flexbox;
-      display: flex;
+.rentdetail .rent-info view .label {
+    padding-right: 12rpx;
 }
-.rent-detail .swiper .swiper-box .indicator .dots {
-        width: 0rpx;
-        background-color: white;
-        -webkit-transition: all 0.3s ease-out;
-        -o-transition: all 0.3s ease-out;
-        transition: all 0.3s ease-out;
+.rentdetail .p-t-16 {
+  padding-top: 16rpx;
 }
-.rent-detail .swiper .swiper-box .indicator .dots.on {
-          width: 33.33333%;
+.rentdetail .content {
+  width: 92%;
+  margin: 0 auto;
 }
-.rent-detail .container {
+.rentdetail .label-title {
+  padding-top: 26rpx;
   font-size: 32rpx;
 }
-.rent-detail .container .content {
-    margin: 32rpx auto 32rpx;
-    width: 92%;
+.rentdetail .useringo > view {
+  padding-top: 12rpx;
 }
-.rent-detail .container .content .item {
-      padding-top: 12rpx;
+.rentdetail .useringo > view:first-child {
+    padding-top: 6rpx;
 }
-.rent-detail .container .content .item .lable {
-        padding-right: 20rpx;
-}
-.rent-detail .container .content .rent-list text {
-      padding-right: 20rpx;
-}
-.rent-detail .container .content .rent-list .rent-item {
-      line-height: 1.3;
-}
-.rent-detail .container .content .describe {
-      line-height: 1.3;
-      padding: 10rpx 0 20rpx 0;
-}
-.rent-detail .container .footer {
-    margin: 10rpx auto;
-    width: 92%;
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-pack: end;
-    -webkit-justify-content: flex-end;
-        -ms-flex-pack: end;
-            justify-content: flex-end;
-}
-.rent-detail .container .title {
-    font-size: 38rpx;
-}
-.rent-detail .container .title-desc {
-    line-height: 1.3;
-    font-size: 40rpx;
-    font-weight: 400;
-    padding-top: 10rpx;
+.rentdetail .useringo .label {
+  color: #333333;
+  padding-right: 14rpx;
 }
 

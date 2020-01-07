@@ -1,0 +1,1 @@
+.empty-page{margin-top:30%;text-align:center;background-color:#fff;min-height:100%vh}.chat-list-page{background-color:#fff;min-height:100vh}.chat-text-cut{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

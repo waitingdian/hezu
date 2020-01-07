@@ -15,6 +15,9 @@
 /* 行为相关颜色 */
 /* 文字基本颜色 */
 /* 背景颜色 */
+.uni-custom-header-color {
+  background-image: #ffa800;
+}
 /* 边框颜色 */
 /* 尺寸变量 */
 /* 文字尺寸 */
@@ -33,113 +36,77 @@
 .txt-cut {
   overflow: hidden;
   white-space: nowrap;
-  -o-text-overflow: ellipsis;
-     text-overflow: ellipsis;
+  text-overflow: ellipsis;
+}
+.no-more-txt {
+  text-align: center;
+  padding: 20rpx;
+  color: #606266;
+}
+.user-page {
+  padding-bottom: 50rpx;
+}
+.user-page .radio-btn {
+    display: inline-block;
+    width: 50rpx;
+    height: 50rpx;
+    line-height: 50rpx;
+    text-align: center;
+    border: 1px solid #007AFF;
+    border-radius: 100%;
+    vertical-align: middle;
+}
+.user-page .radio-btn .cuIcon-check {
+      color: transparent;
+}
+.user-page .radio-btn.active .cuIcon-check {
+      color: #007AFF;
 }
 .user-page .user-info {
-  width: 92%;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  margin: 0 auto;
-}
-.user-page .user-info .avator {
-    margin: 18rpx 0 20rpx 18rpx;
-    width: 25%;
-    border-radius: 10000rpx;
-}
-.user-page .user-info .name-wraper {
+    width: 92%;
     display: -webkit-box;
     display: -webkit-flex;
-    display: -ms-flexbox;
     display: flex;
-    -webkit-box-align: center;
-    -webkit-align-items: center;
-        -ms-flex-align: center;
-            align-items: center;
-    width: 58%;
-    padding: 4% 10px;
+    margin: 0 auto;
 }
-.user-page .swiper {
-  width: 100%;
-  margin-top: 10rpx;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-      -ms-flex-pack: center;
-          justify-content: center;
+.user-page .user-info .avator {
+      margin: 18rpx 0 20rpx 18rpx;
+      width: 160rpx;
+      border-radius: 10000rpx;
+      height: 160rpx;
 }
-.user-page .swiper .swiper-box {
-    width: 92%;
-    height: 30.7vw;
-    overflow: hidden;
-    border-radius: 15rpx;
-    -webkit-box-shadow: 0rpx 8rpx 25rpx rgba(0, 0, 0, 0.2);
-            box-shadow: 0rpx 8rpx 25rpx rgba(0, 0, 0, 0.2);
-    position: relative;
-    z-index: 1;
-}
-.user-page .swiper .swiper-box swiper {
-      width: 100%;
-      height: 30.7vw;
-}
-.user-page .swiper .swiper-box swiper swiper-item image {
-        width: 100%;
-        height: 30.7vw;
-}
-.user-page .swiper .swiper-box .indicator {
-      position: absolute;
-      bottom: 20rpx;
-      left: 50%;
-      -webkit-transform: translateX(-50%);
-          -ms-transform: translateX(-50%);
-              transform: translateX(-50%);
-      background-color: rgba(255, 255, 255, 0.4);
-      width: 150rpx;
-      height: 5rpx;
-      border-radius: 3rpx;
-      overflow: hidden;
+.user-page .user-info .name-wraper {
       display: -webkit-box;
       display: -webkit-flex;
-      display: -ms-flexbox;
       display: flex;
-}
-.user-page .swiper .swiper-box .indicator .dots {
-        width: 0rpx;
-        background-color: white;
-        -webkit-transition: all 0.3s ease-out;
-        -o-transition: all 0.3s ease-out;
-        transition: all 0.3s ease-out;
-}
-.user-page .swiper .swiper-box .indicator .dots.on {
-          width: 33.33333%;
+      -webkit-box-align: center;
+      -webkit-align-items: center;
+              align-items: center;
+      width: 58%;
+      padding: 4% 10px;
 }
 .user-page .personal {
-  width: 92%;
-  margin: 0 auto;
+    width: 92%;
+    margin: 0 auto;
 }
 .user-page .personal view {
-    padding-top: 8rpx;
+      padding-top: 8rpx;
 }
 .user-page .personal .tag {
-    color: #ffa800;
-    padding: 6rpx 16rpx;
-    border: 1px solid #ffa800;
-    border-radius: 8rpx;
-    margin: 0 12rpx;
-    font-size: 28rpx;
+      color: #ffa800;
+      padding: 6rpx 16rpx;
+      border: 1px solid #ffa800;
+      border-radius: 8rpx;
+      margin: 0 12rpx;
+      font-size: 28rpx;
 }
 .user-page .personal .uni-input {
-    display: inline-block;
-    vertical-align: middle;
+      display: inline-block;
+      vertical-align: middle;
 }
 .user-page .personal text {
-    display: inline-block;
-    vertical-align: middle;
-    padding-right: 12rpx;
+      display: inline-block;
+      vertical-align: middle;
+      padding-right: 12rpx;
 }
 

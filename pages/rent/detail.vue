@@ -1,109 +1,290 @@
 <template>
-	<view class="rent-detail">
-		<!-- 轮播图 -->
-		<view class="swiper">
-			<view class="swiper-box">
-				<swiper circular="true" autoplay="true" @change="swiperChange">
-					<swiper-item v-for="swiper in swiperList" :key="swiper.id">
-						<image :src="swiper.img" @tap="toSwiper(swiper)"></image>
-					</swiper-item>
-				</swiper>
-				<view class="indicator">
-					<view
-						class="dots"
-						v-for="(swiper, index) in swiperList"
-						:class="[currentSwiper >= index ? 'on' : '']"
-						:key="index"
-					></view>
-				</view>
+	<view class="rentdetail">
+		<cu-custom bgColor="uni-custom-header-color" :isBack="true">
+			<block slot="backText" @tap="BackPage">返回</block>
+			<block slot="content">发布详情</block>
+		</cu-custom>
+		
+		<view class="content padding-bottom-lg" v-show="detailInfo && detailInfo.id">
+			<view class="content-title" v-if="detailInfo.cotenant_type == 1">预租房(组团)</view>
+			<view class="content-title" v-if="detailInfo.cotenant_type == 2">合租房(组团)</view>
+			<!-- 个人信息 -->
+			<view class="label-title">团长信息</view>
+			<view class="useringo">
+				<view><text class="label">姓名:</text>	{{ detailInfo.leader }}</view>
+				<view><text class="label">学校:</text>	{{ detailInfo.college }}</view>
+				<view><text class="label">性别:</text>	{{ detailInfo.sex == 1 ? '男' : '女' }}</view>
+				<!-- <view><text class="label">兴趣爱好:</text>	{{ detailInfo.sex }}</view> -->
+				<view><text class="label">租房描述:</text>	{{ detailInfo.cotenant_description }}</view>
 			</view>
-		</view>
-		<!--  -->
-		<view class="container">
-			<view class="content">
-				<view class="title">标题标题标题标题标题标题标题标题标题标题</view>
-				<view class="item">
-					<text class="lable">团长:</text>
-					{{ detailInfo.commander }}
-				</view>
-				<view class="item">
-					<text class="lable">房间数:</text>
-					{{ detailInfo.roomCount }}
-				</view>
-				<view class="item">
-					<text class="lable">租房状态:</text>
-					{{ detailInfo.roomStatus }}
-				</view>
-				<view class="item">
-					<text class="lable">位置:</text>
-					{{ detailInfo.position }}
-				</view>
-				<view class="title-desc">出租描述</view>
-				<view class="describe">{{ detailInfo.describe }}</view>
-				<view class="rent-list">
-					<view class="rent-item" v-for="rent in detailInfo.renterList" :key="rent.id">
-						<text>{{ rent.role }}</text>
-						<text>{{ rent.name }}</text>
-						<text>{{ rent.school }}</text>
-						<text>{{ rent.describe }}</text>
+			<!-- 团员信息 -->
+			<view class="padding-top-sm">
+				<view class="label-title" v-if="detailInfo && detailInfo.cotenant_list&& detailInfo.cotenant_list.length">团员信息</view>
+				<view class="group-item-wraper padding-top-sm" v-for="(item,index) in detailInfo.cotenant_list" :key="index">
+					<view class="useringo">
+						<view><text class="label">昵称:</text>	{{ item.nick_name }}</view>
+						<view><text class="label">学校:</text>	{{ item.college }}</view>
+						<view><text class="label">性别:</text>	{{ item.sex == 1 ? '男' : '女' }}</view>
+						<view><text class="label">毕业时间:</text>	{{ item.end_time || '暂无' }}</view>
+						<view><text class="label">兴趣爱好:</text>	{{ item.interest }}</view>
+						<view style="padding-bottom: 10px;">
+							<text class="label">状态:</text>
+							<view v-for="(status,index) in statusList"
+								:key="index"
+								v-if="item.status==status.value" 
+								class='cu-tag margin-left-xs'
+								:class="'line-' + status.class">{{status.label}}
+							</view>
+				
+						</view>
+						<!-- 1是我发布的 -->
+						<view style="text-align: right;" v-if="activeTab && activeTab == 1">
+							<button @tap="handleStatus(20, item.id)" v-if="item.status!=10" class="cu-btn line-grey margin-right-lg">拒绝</button>
+							<button @tap="handleStatus(10, item.id)" v-if="item.status!=10" class="cu-btn bg-blue margin-right-lg">通过</button>
+							<button @tap="goChat(item)" class="cu-btn line-blue margin-right-lg">聊一聊</button>
+						</view>
+						<!-- 2是我参与的 -->
+						<view style="text-align: right;" v-if="activeTab && activeTab == 2 && item.status!=30">
+							<button @tap="cancelJoin" v-if="item.user_id == userInfo.user_id" class="cu-btn gray-blue margin-right-lg">撤销</button>
+						</view>
 					</view>
 				</view>
 			</view>
-			<view class="footer">
-				<button style="width: 42%;margin-right: 20upx;margin-left: 0;"
-				 type="primary"
-				 @tap="apply"
-				 loading="applyLoading">申请加入
-				 </button>
-				<button style="width: 42%;margin-left: 0;margin-right: 0;">联系团长
-				</button>
+			
+			<view v-if="detailInfo.cotenant_type && detailInfo.cotenant_type ==2">
+				<view class="label-title">租房信息</view>
+				<view class="rent-info">
+					<view>
+						<text class="label">标题: </text>
+						<text>{{detailInfo.title }}</text>
+					</view>
+					
+					<view>
+						<text class="label">地区: </text>
+						<text>{{ detailInfo.province }}{{ detailInfo.city }}{{ detailInfo.district }}</text>
+					</view>
+					
+					<view>
+						<text class="label">预租房间数: </text>
+						<text>{{ detailInfo.cotenant_count }} 间</text>
+					</view>
+					
+					<view>
+						<text class="label">预租房描述: </text>
+						<text>{{ detailInfo.chamber_description }}</text>
+					</view>
+				</view>
+			</view>
+				
+			<button v-if="activeTab && activeTab == 1"
+			 class="cu-btn block line-blue margin-tb-sm lg"
+			  style="margin-top: 60upx;"
+			  @tap="doDismiss">解散该团</button>
+		</view>
+		
+		<!-- 解散和组团 -->
+		<view class="cu-modal" :class="modalName=='DialogModal3'?'show':''">
+			<view class="cu-dialog">
+				<view class="cu-bar bg-white justify-end">
+					<view class="content padding-top-sm">解散合租团</view>
+					<view class="action" @tap="hideModal">
+						<text class="cuIcon-close text-red"></text>
+					</view>
+				</view>
+				<view class="cu-form-group margin-top padding-xl margin-bottom" style="text-align: left;">
+					<textarea maxlength="-1" @input="dismissTextareaAInput" placeholder="请输入解散理由,请确保已与其他成员沟通同意解散"></textarea>
+				</view>
+				<view class="cu-bar bg-white justify-end">
+					<view class="action">
+						<button class="cu-btn line-blue text-green" @tap="hideModal">取消</button>
+						<button class="cu-btn bg-blue margin-left" :disabled="!dismissContent" @tap="doDismissAjax">确定</button>
+		
+					</view>
+				</view>
 			</view>
 		</view>
+		
 	</view>
 </template>
 
 <script>
-	
-	//高德SDK
-	import amap from '@/common/SDK/amap-wx.js';
+	import {
+		        mapState,  
+		        mapMutations  
+		    } from 'vuex';  
 
+	var util = require('@/common/util.js');
 	export default {
-
 		data() {
 			return {
-				currentSwiper: 0,
-				// 轮播图片
-				swiperList: [
-					{ id: 1, src: 'url1', img: '/static/img/1.jpg' },
-					{ id: 2, src: 'url2', img: '/static/img/2.jpg' },
-					{ id: 3, src: 'url3', img: '/static/img/3.jpg' }
+				loadModal:false,
+				modalName: null,
+				reportContent: '',
+				dismissContent: '',
+				detailInfo: {},
+				statusList: [
+					{ label: '待审核', value: 0, class: 'blue'},
+					{ label: '通过', value: 10, class: 'green'},
+					{ label: '未通过(拒绝)', value: 20, class: 'red'},
+					{ label: '取消(退团)', value: 30, class: 'gray'}
 				],
-				detailInfo: {
-					commander: '包鹏程',
-					roomCount: 200,
-					roomStatus: '正在出租',
-					position: '上海市浦东新区',
-					describe: '个人生活作息规律,喜欢唱歌,跳舞,喜欢我的可以申请加入',
-					renterList: [
-						{ id: 1, role: '团长1', name: '包鹏程',school: '交通大学',describe: '兴趣爱好'},
-						{ id: 2, role: '团长2', name: '包鹏程',school: '交通大学',describe: '兴趣爱好'},
-						{ id: 3, role: '团长3', name: '包鹏程',school: '交通大学',describe: '兴趣爱好'},
-						{ id: 4, role: '团长4', name: '包鹏程',school: '交通大学',describe: '兴趣爱好'}
-					]
-				},
-				applyLoading: false,
-			};
+				dotStyle: false,
+				userInfo: {},
+				activeTab: null,
+				id: ''
+				
+			}
 		},
-		onLoad() {
+		onShow() {
+			if (this.id) {
+				this.getDetailInfo(this.id)
+			}
 		},
-		onPageScroll(e) {
+		onLoad(options) {
+			this.id = options.id
+			this.activeTab = options.activeTab
+			this.getDetailInfo(this.id)
+			uni.getStorage({
+				key: 'userInfo',
+				success: (res)=>{
+					this.userInfo = JSON.parse(res.data);
+					if ((!this.userInfo) || (!this.userInfo.user_id)) {
+						this.$store.dispatch('getuserinfo')
+					}
+				}
+			});
 		},
+		computed: {
+		    ...mapState(['emptyRoomPic'])  
+		},
+		
 		methods: {
-			// 申请加入
-			apply() {
+			goChat(item) {
+				uni.navigateTo({
+					url: `/pages/chat/detail?id=${item.user_id}`
+				});
+			},
+			cancelJoin() {
+				uni.showModal({
+					title: '提示',
+					content: '确定撤销申请吗？',
+					cancelText: '取消',
+					confirmText: '确定',
+					success: response => {
+						if (response.confirm) {
+							this.$api.getCancelPersonal({id: this.detailInfo.id}).then(res => {
+								uni.showToast({
+									icon: 'success',
+									title: '撤销成功'
+								});
+								this.getDetailInfo(this.id)
+							}).catch(err => {
+							})
+						}
+					}
+				})
+				
+			},
+				// 状态处理
+			handleStatus (status,id){
+				let params = {
+					group_id: this.detailInfo.id,
+					member_id: id,
+					status: status
+				}
+				this.$api.getPersonalExamine(params).then(res => {
+					uni.showToast({
+						icon: 'success',
+						title: '操作成功'
+					});
+					this.getDetailInfo(this.id)
+				}).catch(err => {
+				})
+			},
+			
+			showModal(e) {
+				this.modalName = e.currentTarget.dataset.target
+			},
+			
+			hideModal(e) {
+				this.modalName = null
+			},
+			
+			textareaAInput(e) {
+				this.reportContent = e.detail.value
+			},
+			
+			BackPage() {
+				uni.navigateBack({
+					delta: 1
+				});
+			},
+			
+			getDetailInfo (id) {
+				this.loadModal = true
+				this.$api.getPersonalDetail({
+					id: id,
+				}).then(res => {
+				   this.loadModal = false
+				   res.data.cotenant_list  && res.data.cotenant_list.forEach((item) => {
+					   if (item && item.end_time) {
+						  item.end_time = util.format(item.end_time)
+					   }
+				   })
+				   res.data.chamber_img_url = res.data.chamber_img_url || this.emptyRoomPic
+				   res.data.imgUrlList = res.data.chamber_img_url.split(',')
+				   res.data.created_time = util.getDate(res.data.created_time)
+				   this.detailInfo = res.data
+				}).catch(err => {
+				})
+			},
+			
+			dismissTextareaAInput (e) {
+				this.dismissContent = e.detail.value
+			},
+			
+			doDismiss () {
 				uni.showModal({
 					title: '温馨提示',
-					content: '确定申请加入该预租团？',
+					content: '请确保与其他成员沟通，同意解散租房团',
+					confirmText: '确定',
+					cancelText: '再想想',
+					success: (res)=>{
+						if (res.confirm) {
+							this.doDismissAjax()
+						} else if (res.cancel) {
+						}
+					}
+				});	
+			},
+			
+			doDismissAjax () {
+				this.$api.getPersonaDismiss({
+					id: this.detailInfo.id,
+					dismissContent: this.dismissContent // 解散理由
+				}).then(res => {
+					uni.showToast({icon: 'none',title: '解散成功'});
+					setTimeout(() => {
+						uni.switchTab({
+						    url: '/pages/home/home',
+						    success: function(e) {
+						     uni.setStorage({
+						         key: 'hometype',
+						         data: '2'
+						     });
+						    }
+						});
+					}, 500)
+				}).catch(err => {
+				})
+			},
+			
+			operation (){
+				uni.showModal({
+					title: '温馨提示',
+					content: '是否同意该申请？',
+					confirmText: '通过',
+					cancelText: '拒绝',
 					success: (res)=>{
 						if (res.confirm) {
 							console.log('用户点击确定');
@@ -111,112 +292,104 @@
 							console.log('用户点击取消');
 						}
 					}
-				});
-			},
-			//轮播图指示器
-			swiperChange(event) {
-				this.currentSwiper = event.detail.current;
-			},
-			//轮播图跳转
-			toSwiper(e) {
-				uni.showToast({ title: e.src, icon: 'none' });
-			},
+				});	
+			}
 		}
 	}
 </script>
 
 <style lang="scss">
-.rent-detail{
-	// 轮播图
-	.swiper {
-		width: 100%;
-		margin-top: 10upx;
-		display: flex;
-		justify-content: center;
-		.swiper-box {
-			width: 92%;
-			height: 30.7vw;
-	
-			overflow: hidden;
-			border-radius: 15upx;
-			box-shadow: 0upx 8upx 25upx rgba(0, 0, 0, 0.2);
-			//兼容ios，微信小程序
+	.rentdetail{
+		.cu-bar .content{
+			height: 70upx;
+			line-height: 70upx;
+		}
+		// color: $uni-text-color-grey;
+		.content-title{
+			font-size: 36upx;
+			padding: 46upx 0 8upx;
+			text-align: center;
+		}
+		.report-btn{
+			color: $uni-text-color-grey;
+		}
+		.cu-tag{
+			padding-top: 0;
+		}
+		.cu-tag[class*="line-"]::after {
+		    border-radius: 4px;
+		}
+		.group-item-wraper{
+			padding-bottom: 40upx;
+			border-bottom: 1px solid #e8e8e8;
+		}
+		.card-wraper{
 			position: relative;
-			z-index: 1;
-			swiper {
-				width: 100%;
-				height: 30.7vw;
-				swiper-item {
-					image {
-						width: 100%;
-						height: 30.7vw;
-					}
-				}
-			}
-			.indicator {
+			.cu-tag{
 				position: absolute;
-				bottom: 20upx;
-				// left: 20upx;
-				left: 50%;
-				transform: translateX(-50%);
-				background-color: rgba(255, 255, 255, 0.4);
-				width: 150upx;
-				height: 5upx;
-				border-radius: 3upx;
-				overflow: hidden;
-				display: flex;
-				.dots {
-					width: 0upx;
-					background-color: rgba(255, 255, 255, 1);
-					transition: all 0.3s ease-out;
-					&.on {
-						width: (100%/3);
-					}
-				}
+				top: 6upx;
+				right: 6upx;
+			}
+			uni-image{
+				height: 100%;
+			}
+			.bg-shadeBottom{
+				position: absolute;
+				bottom: 0;
+				width: 100%;
+				background-color: transparent;
+				padding: 0px 12px;
 			}
 		}
-	}
-	// 详情
-	.container{
-		font-size: $uni-font-size-lg;
-		.content{
-			margin: 32upx auto 32upx;
-			width: 92%;
-			.item{
-				padding-top: 12upx;
-				.lable{
-					padding-right: 20upx;
-				}
-			}
-			.rent-list {
-				text{
-					padding-right: 20upx;
-				}
-				.rent-item{
-					// padding: 6upx 0;
-					line-height: 1.3;
-				}
-			}
-			.describe{
-				line-height: 1.3;
-				padding: 10upx 0 20upx 0;
-			}
-		}
-		.footer{
-			margin: 10upx auto;
-			width: 92%;
+		.table-item{
 			display: flex;
-			justify-content: flex-end;
+			// border: 1px solid #ccc;
+			border-top: 1px solid #ccc;
+			border-left: 1px solid #ccc;
+			text{
+				padding: 16upx 0;
+				flex: 1;
+				border-right: 1px solid #ccc;
+				// border-bottom: 1px solid #ccc;
+				text-align: center;
+			}
+			.operation{
+				color:#4399FC;
+				text-decoration: underline;
+			}
 		}
-		.title{
-			font-size: $uni-font-size-biglg;
+		.rent-info{
+			view{
+				padding: 6upx 0;
+				.label{
+					padding-right: 12upx;
+				}
+			}
 		}
-		.title-desc{
-			line-height:  1.3;
-			font-size: $uni-font-size-title;
-			font-weight: 400;
-			padding-top: 10upx;
+		.p-t-16{
+			padding-top: 16upx;
+		}
+		.content{
+			width: 92%;
+			margin: 0 auto;
+		}
+		.label-title{
+			// color: $uni-text-color-grey;
+			padding-top: 26upx;
+			font-size: $uni-font-size-lg;
+		}
+		.useringo{
+			>view{
+				padding-top: 12upx;
+				&:first-child{
+					padding-top: 6upx;
+				}
+			}
+			.label{
+				color: #333333;
+				// color: $uni-text-color-grey;
+				padding-right: 14upx
+			}
 		}
 	}
-}
 </style>

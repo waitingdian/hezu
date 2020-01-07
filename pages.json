@@ -1,44 +1,45 @@
 {
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
-		// {
-		//     "path" : "pages/home/home",
-		//     "style": {
-		//     	"navigationBarTitleText": "首页"
-		//     }
-		// },
 		{
 			"path": "pages/home/home",
 			"style": {
-				"navigationBarTextStyle":"black",
-				"enablePullDownRefresh": true,
-				"onReachBottomDistance":50,
-				"app-plus": {
-					"titleNView": false ,//禁用原生导航栏
-					"softinputNavBar":"none",
-					"subNVues":[{  
-						"id": "homeTitleNvue", // 唯一标识  
-						// "path": "pages/tabBar/home/subNvue/homeTitleNvue", // 页面路径  
-						"type":"navigationBar"
-					}]
-				}
+				"navigationStyle": "custom",
+				"navigationBarTitleText": "首页"
 			}
 		},
 		{
-			"path": "pages/index/index",
-			"style": {
-				"navigationBarTitleText": "index"
-			}
-		}
-        ,{
-            "path" : "pages/login",
-            "style" : {
-				"navigationBarTitleText": "登录"
-			}
-        }
-		,{
 		    "path" : "pages/register",
 		    "style" : {
 				"navigationBarTitleText": "注册"
+			}
+		}
+		,{
+		    "path" : "pages/rent/rent",
+		    "style" : {
+				"navigationStyle": "custom",
+				"navigationBarTitleText": "我的合租"
+			}
+		}
+		,{
+		    "path" : "pages/user/mine",
+		    "style": {
+				"navigationStyle": "custom",
+		    	"navigationBarTitleText": "我的信息"
+		    }
+		}
+		,{
+		    "path" : "pages/chat/list",
+		    "style" : {
+				"navigationStyle": "custom",
+				"navigationBarTitleText": "聊一聊"
+			}
+		},
+		
+		// 注册 登录 忘记密码 注册协议页
+		{
+		    "path" : "pages/login",
+		    "style" : {
+				"navigationBarTitleText": "登录"
 			}
 		}
 		,{
@@ -48,55 +49,91 @@
 			}
 		}
 		,{
+		    "path" : "pages/agreement/login",
+		    "style": {
+		    	"navigationBarTitleText": "用户注册登录协议"
+		    }
+		}
+// 选择发布 预租房发布 合租房发布  预租房发布详情 合租房发布详情 我的发布信息
+		,{
 		    "path" : "pages/release/release",
 		    "style": {
+				"navigationStyle": "custom",
 		    	"navigationBarTitleText": "发布"
 		    }
-		},
-		{
-		    "path" : "pages/rent/rent",
-		    "style" : {
-				"navigationBarTitleText": "我的发布"
-			}
-		},
-		{
-		    "path" : "pages/rent/detail",
-		    "style" : {
-				"navigationBarTitleText": "发布详情"
-			}
 		}
 		,{
 		    "path" : "pages/release/prelease",
 		    "style": {
+				"navigationStyle": "custom",
 		    	"navigationBarTitleText": "预租房发布"
 		    }
 		}
 		,{
 		    "path" : "pages/release/rentsharing",
 		    "style": {
+				"navigationStyle": "custom",
 		    	"navigationBarTitleText": "合租房发布"
 		    }
 		}
 		,{
-		    "path" : "pages/user/user",
-		    "style": {
-		    	"navigationBarTitleText": "我的信息"
-		    }
+		    "path" : "pages/home/detail",   // 精选详情
+		    "style" : {
+				"navigationStyle": "custom",
+				"navigationBarTitleText": "详情"
+			}
+		}
+		,{
+		    "path" : "pages/rent/detail",
+		    "style" : {
+				"navigationStyle": "custom",
+				"navigationBarTitleText": "发布详情"
+			}
 		}
 		,{
 		    "path" : "pages/release/predetail",
 		    "style": {
+				"navigationStyle": "custom",
 		    	"navigationBarTitleText": "发布详情"
 		    }
 		}
 		,{
 		    "path" : "pages/release/rentdetail",
 		    "style": {
+				"navigationStyle": "custom",
 		    	"navigationBarTitleText": "我的信息"
 		    }
 		}
+		// 个人信息 完善个人信息 聊一聊详情
+		,{
+            "path" : "pages/user/personal",
+            "style" : {
+				"navigationBarTitleText": "完善个人信息"
+			}
+        }
+		,{
+		    "path" : "pages/chat/detail",
+		    "style" : {
+				"navigationStyle": "custom",
+				"navigationBarTitleText": "聊一聊"
+			}
+		},
+		{
+		    "path" : "pages/user/user",
+		    "style" : {
+				"navigationStyle": "custom",
+				"navigationBarTitleText": "设置"
+			}
+		}
+        ,{
+            "path" : "pages/user/about",
+            "style" : {
+				"navigationBarTitleText": "关于校友合租"
+			}
+        }
     ],
 	"globalStyle": {
+		// "navigationStyle": "custom",
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "uni-app",
 		"navigationBarBackgroundColor": "#F8F8F8",
@@ -109,20 +146,26 @@
 		"backgroundColor": "#ffffff",
 		"list": [{
 				"pagePath": "pages/home/home",
-				"iconPath": "static/img/tabBar/home.png",
-				"selectedIconPath": "static/img/tabBar/home-on.png",
-				"text": "发现"
+				"iconPath": "static/img/tabBar/home1.png",
+				"selectedIconPath": "static/img/tabBar/home1-on.png",
+				"text": "精选"
 			},
 			{
 				"pagePath": "pages/rent/rent",
-				"iconPath": "static/img/tabBar/user.png",
-				"selectedIconPath": "static/img/tabBar/user-on.png",
+				"iconPath": "static/img/tabBar/guanzhu.png",
+				"selectedIconPath": "static/img/tabBar/guanzhu-on.png",
 				"text": "我的合租"
+			}
+			,{
+				"pagePath": "pages/chat/list",
+				"iconPath": "static/img/tabBar/news.png",
+				"selectedIconPath": "static/img/tabBar/news-on.png",
+				"text": "聊一聊"
 			},
 			{
-				"pagePath": "pages/user/user",
-				"iconPath": "static/img/tabBar/user.png",
-				"selectedIconPath": "static/img/tabBar/user-on.png",
+				"pagePath": "pages/user/mine",
+				"iconPath": "static/img/tabBar/me.png",
+				"selectedIconPath": "static/img/tabBar/me-on.png",
 				"text": "我的信息"
 			}
 		]

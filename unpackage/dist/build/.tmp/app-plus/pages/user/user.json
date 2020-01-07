@@ -1,6 +1,7 @@
 {
-  "navigationBarTitleText": "我的信息",
+  "navigationStyle": "custom",
+  "navigationBarTitleText": "设置",
   "usingComponents": {
-    "uni-calendar": "/components/uni-calendar/uni-calendar"
+    "cu-custom": "/colorui/components/cu-custom"
   }
 }

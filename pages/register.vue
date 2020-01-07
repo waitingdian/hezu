@@ -1,5 +1,8 @@
 <template>
 	<view class="content">
+<!-- 		<cu-custom bgColor="uni-custom-header-color">
+			<block slot="content">注册</block>
+		</cu-custom> -->
 		<view class="header">
 			<image src="../static/shilu-login/logo3.jpg"></image>
 		</view>
@@ -11,17 +14,13 @@
 			</view>
 			<view class="list-call">
 				<image class="img" src="/static/shilu-login/2.png"></image>
-				<input class="biaoti" v-model="password" type="text" maxlength="32" placeholder="登录密码" :password="!showPassword" />
+				<input class="biaoti" v-model="password" type="text" maxlength="16" placeholder="登录密码" :password="!showPassword" />
 				<image class="img" :src="showPassword?'/static/shilu-login/op.png':'/static/shilu-login/cl.png'" @tap="display"></image>
 			</view>
 			<view class="list-call">
 				<image class="img" src="/static/shilu-login/3.png"></image>
-				<input class="biaoti" v-model="code" type="number" maxlength="4" placeholder="验证码" />
+				<input class="biaoti" v-model="code" type="number" maxlength="6" placeholder="验证码" />
 				<view class="yzm" :class="{ yzms: second>0 }" @tap="getcode">{{yanzhengma}}</view>
-			</view>
-			<view class="list-call">
-				<image class="img" src="/static/shilu-login/4.png"></image>
-				<input class="biaoti" v-model="invitation" type="text" maxlength="12" placeholder="邀请码" />
 			</view>
 			
 		</view>
@@ -33,7 +32,10 @@
 		<view class="xieyi">
 			<image @tap="xieyitong" :src="xieyi==true?'/static/shilu-login/ty1.png':'/static/shilu-login/ty0.png'"></image>
 			<text @tap="xieyitong"> 同意</text>
-			<navigator url="blog?id=1" open-type="navigate">《软件用户协议》</navigator>
+			<navigator url="agreement/login" open-type="navigate">《软件用户协议》</navigator>
+		</view>
+		<view class="xieyi">
+			<navigator url="login" open-type="navigate">已有账户,去登录</navigator>
 		</view>
 	</view>
 </template>
@@ -54,7 +56,6 @@
 				phoneno:'',
 				password:'',
 				code:'',
-				invitation:'',
 				xieyi:true,
 				showPassword:false,
 				second:0
@@ -77,34 +78,43 @@
 			display() {
 			    this.showPassword = !this.showPassword
 			},
+			
 			xieyitong(){
 				this.xieyi = !this.xieyi;
 			},
+			
 			getcode(){
+				if (!this.phoneno) {
+				uni.showToast({
+				    icon: 'none',
+				    title: '手机号不能为空'
+				});
+				return;
+				}
+				if (this.phoneno.length !=11) {
+				    uni.showToast({
+				        icon: 'none',
+				        title: '手机号不正确'
+				    });
+				    return;
+				}
 				if(this.second>0){
 					return;
 				}
 				this.second = 60;
-				uni.request({
-				    url: 'http://***/getcode.html', //仅为示例，并非真实接口地址。
-				    data: {phoneno:this.phoneno,code_type:'reg'},
-					method: 'POST',
-					dataType:'json',
-				    success: (res) => {
-						if(res.data.code!=200){
-							uni.showToast({title:res.data.msg,icon:'none'});
-						}else{
-							uni.showToast({title:res.data.msg});
-							js = setInterval(function(){
-								tha.second--;
-								if(tha.second==0){
-									clearInterval(js)
-								}
-							},1000)
-						}
-				    }
-				});
+				this.$api.sendMsg({mobile: this.phoneno}).then(res => {
+				   let phone = this.phoneno.replace(/^(\d{3})\d{4}(\d+)/,"$1****$2");
+				   uni.showToast({icon: 'none', title: `验证码已发送至${phone}`});
+				   js = setInterval(() =>{
+				   	this.second--;
+				   	if(this.second==0){
+				   		clearInterval(js)
+				   	}
+				   },1000)
+				}).catch(err => {
+				})
 			},
+			
 		    bindLogin() {
 				if (this.xieyi == false) {
 				    uni.showToast({
@@ -120,41 +130,40 @@
 				    });
 				    return;
 				}
-		        if (this.password.length < 6) {
+		        if (this.password.length < 6 || this.password.length > 16) {
 		            uni.showToast({
 		                icon: 'none',
-		                title: '密码不正确'
+		                title: '请输入6到16位密码'
 		            });
 		            return;
 		        }
-				if (this.code.length != 4) {
+				if (this.code.length != 6) {
 				    uni.showToast({
 				        icon: 'none',
 				        title: '验证码不正确'
 				    });
 				    return;
 				}
-				uni.request({
-				    url: 'http://***/reg.html',
-				    data: {
-						phoneno:this.phoneno,
-						password:this.password,
-						code:this.code,
-						invitation:this.invitation
-					},
-					method: 'POST',
-					dataType:'json',
-				    success: (res) => {
-						if(res.data.code!=200){
-							uni.showToast({title:res.data.msg,icon:'none'});
-						}else{
-							uni.showToast({title:res.data.msg});
-							setTimeout(function(){
-								uni.navigateBack();
-							},1500) 
-						}
-				    }
-				});
+				this.$api.register({
+					mobile: this.phoneno,
+					password:this.password,
+					code:this.code,
+				}).then(res => {
+					uni.showToast({
+					    icon: 'none',
+					    title: '注册成功'
+					});
+					this.$api.login({
+						mobile:this.phoneno,
+						password:this.password
+					}).then(res => {
+						uni.navigateTo({
+							url: `/pages/user/personal`
+						})
+					}).catch(err => {
+					})
+				}).catch(err => {
+				})
 				
 		    }
 		}
@@ -257,5 +266,8 @@
 	.xieyi image{
 		width: 40upx;
 		height: 40upx;
+	}
+	.login-wraper{
+		
 	}
 </style>

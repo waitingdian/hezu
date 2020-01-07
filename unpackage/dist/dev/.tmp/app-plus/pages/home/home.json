@@ -1,14 +1,7 @@
 {
-  "navigationBarTextStyle": "black",
-  "enablePullDownRefresh": true,
-  "onReachBottomDistance": 50,
-  "titleNView": false,
-  "softinputNavBar": "none",
-  "subNVues": [
-    {
-      "id": "homeTitleNvue",
-      "type": "navigationBar"
-    }
-  ],
-  "usingComponents": {}
+  "navigationStyle": "custom",
+  "navigationBarTitleText": "首页",
+  "usingComponents": {
+    "cu-custom": "/colorui/components/cu-custom"
+  }
 }

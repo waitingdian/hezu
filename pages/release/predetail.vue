@@ -95,17 +95,6 @@
 				console.log('picker发送选择改变，携带值为', e.target.value)
 			    this.index3 = e.target.value
 			},
-			formSubmitPre: function(e) {
-				this.$store.commit('addProductList', this.roomInfo)
-				uni.showToast({title: '发布成功',icon:"success"});
-				setTimeout(() => {
-					uni.navigateBack()
-				}, 200)
-				// uni.navigateTo({
-				// 	url:'/pages/home/home'
-				// })
-				// console.log('form发生了submit事件，携带数据为：' + JSON.stringify(e.detail.value))
-			},
 			operation (){
 				uni.showModal({
 					title: '温馨提示',
@@ -175,7 +164,7 @@
 			.label{
 				color: #333333;
 				// color: $uni-text-color-grey;
-				padding-right: 20upx;
+				padding-right: 14upx;
 			}
 		}
 		.roominfo{
@@ -188,7 +177,7 @@
 			.label{
 				color: #333333;
 				// color: $uni-text-color-grey;
-				padding-right: 28upx;
+				padding: 14upx 20upx 14upx 0;
 			}
 			input{
 				height: 70upx;

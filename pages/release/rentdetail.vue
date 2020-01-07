@@ -1,5 +1,5 @@
 <template>
-	<view class="prelease">
+	<view class="rentdetail">
 		<view class="content">
 				<view class="p-t-16" style="text-align: center;padding-top: 40upx;">预租房(组团)</view>
 				<!-- 个人信息 -->
@@ -95,17 +95,6 @@
 				console.log('picker发送选择改变，携带值为', e.target.value)
 			    this.index3 = e.target.value
 			},
-			formSubmitPre: function(e) {
-				this.$store.commit('addProductList', this.roomInfo)
-				uni.showToast({title: '发布成功',icon:"success"});
-				setTimeout(() => {
-					uni.navigateBack()
-				}, 200)
-				// uni.navigateTo({
-				// 	url:'/pages/home/home'
-				// })
-				// console.log('form发生了submit事件，携带数据为：' + JSON.stringify(e.detail.value))
-			},
 			operation (){
 				uni.showModal({
 					title: '温馨提示',
@@ -132,7 +121,7 @@
 </script>
 
 <style lang="scss">
-	.prelease{
+	.rentdetail{
 		.table-item{
 			display: flex;
 			// border: 1px solid #ccc;
@@ -175,7 +164,7 @@
 			.label{
 				color: #333333;
 				// color: $uni-text-color-grey;
-				padding-right: 20upx;
+				padding-right: 14upx
 			}
 		}
 		.roominfo{
@@ -187,8 +176,8 @@
 			}
 			.label{
 				color: #333333;
+				padding: 14upx 20upx 14upx 0;
 				// color: $uni-text-color-grey;
-				padding-right: 28upx;
 			}
 			input{
 				height: 70upx;

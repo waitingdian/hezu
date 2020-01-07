@@ -1,18 +1,24 @@
 {
   "pages": [
     "pages/home/home",
-    "pages/index/index",
-    "pages/login",
     "pages/register",
-    "pages/forget",
-    "pages/release/release",
     "pages/rent/rent",
-    "pages/rent/detail",
+    "pages/user/mine",
+    "pages/chat/list",
+    "pages/login",
+    "pages/forget",
+    "pages/agreement/login",
+    "pages/release/release",
     "pages/release/prelease",
     "pages/release/rentsharing",
-    "pages/user/user",
+    "pages/home/detail",
+    "pages/rent/detail",
     "pages/release/predetail",
-    "pages/release/rentdetail"
+    "pages/release/rentdetail",
+    "pages/user/personal",
+    "pages/chat/detail",
+    "pages/user/user",
+    "pages/user/about"
   ],
   "window": {
     "navigationBarTextStyle": "black",
@@ -28,31 +34,39 @@
     "list": [
       {
         "pagePath": "pages/home/home",
-        "iconPath": "static/img/tabBar/home.png",
-        "selectedIconPath": "static/img/tabBar/home-on.png",
-        "text": "发现"
+        "iconPath": "static/img/tabBar/home1.png",
+        "selectedIconPath": "static/img/tabBar/home1-on.png",
+        "text": "精选"
       },
       {
         "pagePath": "pages/rent/rent",
-        "iconPath": "static/img/tabBar/user.png",
-        "selectedIconPath": "static/img/tabBar/user-on.png",
+        "iconPath": "static/img/tabBar/guanzhu.png",
+        "selectedIconPath": "static/img/tabBar/guanzhu-on.png",
         "text": "我的合租"
       },
       {
-        "pagePath": "pages/user/user",
-        "iconPath": "static/img/tabBar/user.png",
-        "selectedIconPath": "static/img/tabBar/user-on.png",
+        "pagePath": "pages/chat/list",
+        "iconPath": "static/img/tabBar/news.png",
+        "selectedIconPath": "static/img/tabBar/news-on.png",
+        "text": "聊一聊"
+      },
+      {
+        "pagePath": "pages/user/mine",
+        "iconPath": "static/img/tabBar/me.png",
+        "selectedIconPath": "static/img/tabBar/me-on.png",
         "text": "我的信息"
       }
     ]
   },
-  "nvueCompiler": "weex",
+  "nvueCompiler": "uni-app",
   "renderer": "auto",
   "splashscreen": {
     "alwaysShowBeforeRender": true,
     "autoclose": false
   },
   "appname": "校友合租",
-  "compilerVersion": "2.2.0",
-  "usingComponents": {}
+  "compilerVersion": "2.4.6",
+  "usingComponents": {
+    "cu-custom": "/colorui/components/cu-custom"
+  }
 }

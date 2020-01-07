@@ -1,5 +1,8 @@
 <template>
 	<view class="content">
+	<!-- 	<cu-custom bgColor="uni-custom-header-color">
+			<block slot="content">登录</block>
+		</cu-custom> -->
 		<view class="header">
 			<image src="../static/shilu-login/logo3.jpg"></image>
 		</view>
@@ -19,10 +22,9 @@
 		<view class="dlbutton" hover-class="dlbutton-hover" @tap="bindLogin()">
 			<text>登录</text>
 		</view>
-		
 		<view class="xieyi">
-			<navigator url="forget" open-type="navigate">忘记密码</navigator>
-			<text>|</text>
+			<!-- <navigator url="forget" open-type="navigate">忘记密码</navigator> -->
+			<!-- <text>|</text> -->
 			<navigator url="register" open-type="navigate">注册账户</navigator>
 		</view>
 	</view>
@@ -42,7 +44,6 @@
 			};
 		},
 		methods: {
-			...mapMutations(['login']),
 		    bindLogin() {
 				if (this.phoneno.length != 11) {
 				     uni.showToast({
@@ -58,24 +59,36 @@
 		            });
 		            return;
 		        }
-				uni.request({
-				    url: 'http://***/login.html',
-				    data: {
-						phoneno:this.phoneno,
-						password:this.password
-					},
-					method: 'POST',
-					dataType:'json',
-				    success: (res) => {
-						if(res.data.code!=200){
-							uni.showToast({title:res.data.msg,icon:'none'});
-						}else{
-							uni.setStorageSync('user_data', JSON.stringify(res.data.data));
-							this.login();
-							uni.navigateBack();
+				
+				this.$api.login({
+					mobile:this.phoneno,
+					password:this.password
+				}).then(res => {
+					uni.showToast({
+					    icon: 'none',
+					    title: '登录成功'
+					});
+					this.$api.getInfo().then(res => {
+						uni.setStorageSync('userMsg', JSON.stringify(res.data));
+						this.$store.dispatch('getuserinfo')
+						if (res.data && res.data.unread_group_count && res.data.unread_group_count > 0) {
+							uni.setTabBarBadge({
+							  index: 1,
+							  text: res.data.unread_group_count + ''
+							})	
 						}
-				    }
-				});
+						if (res.data.status != 10) {
+							uni.switchTab({
+								url: '/pages/user/user'
+							});
+						} else {
+							uni.switchTab({
+								url: '/pages/home/home'
+							});
+						}
+					})
+				}).catch(err => {
+				})
 				
 		    }
 		}

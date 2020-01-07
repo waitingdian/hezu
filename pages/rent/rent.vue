@@ -1,81 +1,154 @@
 <template>
 	<view class="rent-page">
+		<cu-custom bgColor="uni-custom-header-color">
+			<block slot="content">我的合租</block>
+		</cu-custom>
+		
 		<view class="tab-wrap">
 			<view v-for="tab in navList" 
 			:class="{'active': activeTab == tab.value}"
 			:key="tab.value" 
 			@tap="toggleTab(tab)">{{ tab.txt }}</view>
 		</view>
-<!-- 		<view class="tab-wrap">
-			<view
-			@tap="activeTab=2">1111{{activeTab}}</view>
-		</view> -->
 		<!-- 商品列表 -->
 		<view class="goods-list">
 			<view class="product-list">
 				<view
 					class="product"
-					v-for="product in productList"
-					:key="product.goods_id"
-					@tap="toGoods(product)"
-				>
-					<image mode="widthFix" :src="product.photo_min"></image>
+					v-for="(product,index) in productList"
+					:key="index"
+					@tap="toGoods(product.id)">
+					<image mode="widthFix" :src="product.imgUrlList && product.imgUrlList[0] ? `${product.imgUrlList[0]}?imageView2/1/w/800/h/434` : emptyRoomPic"></image>
 					<view class="right">
-						<view class="name">{{ product.name }}</view>
-						<view class="price">房间数:{{ product.roomCount }}</view>
-						<view class="slogan">租房状态:{{ product.roomStatus }}</view>
+						<view class="name text-cut padding-top-xs">{{ product.title }}</view>
+						<view class="info">租房类型: {{ product.cotenant_type == 1 ? '预防房' : '合租房' }}</view>
+						<view class="info">房间数: {{ product.cotenant_count }}</view>
+						<view class="info">租房状态:
+							<view v-for="(status,index) in statusList"
+								:key="index"
+								v-if="product.status==status.value" 
+								style="height: 40upx;"
+								class='cu-tag margin-left-xs padding-left-xs padding-right-xs'
+								:class="'line-' + status.class">{{status.label}}
+							</view>
+								<!-- :class="'line-' + status.class">{{status.label}}</view> -->
+						</view>
 					</view>
 				</view>
 			</view>
-			<view class="loading-text">{{ loadingText }}</view>
 		</view>
+		<view class="no-more-txt">没有更多了哦</view>
+		<!-- <view class="loading-text" v-if="loadingText">{{ loadingText }}</view> -->
 	</view>
 </template>
 
 <script>
-	 import {  
-	        mapState,  
-	        mapMutations  
-	    } from 'vuex';  
+		import {
+		        mapState,  
+		        mapMutations  
+		    } from 'vuex'; 
 	export default {
 		data() { 
 			return {
 				navList: [
-					{txt: '我发布的',value: 0},
+					{txt: '我发布的',value: 1},
 					{txt: '我参与的',value: 2}
 				],
-				activeTab: 0,
-				loadingText: '正在加载...'
+				activeTab: 1,
+				loadingText: '',
+				productList: [],
+				statusList: [
+					{ label: '租房中', value: 0, class: 'blue'},
+					{ label: '租房完成', value: 10, class: 'green'},
+					{ label: '租房解散', value: 20, class: 'red'}
+				]
 			}
 		},
-		computed: {  
-		     ...mapState(['productList'])  
-		},  
+		computed: {
+		    ...mapState(['emptyRoomPic'])  
+		},
 		methods: {
 			toggleTab(tab) {
 				this.activeTab = tab.value
+				this.getList()
 			},
-			toGoods () {
-				if (this.activeTab) {
-					uni.navigateTo({
-						url:'/pages/release/rentdetail'
-					})		
-				} else {
-					uni.navigateTo({
-						url:'/pages/release/predetail'
+			
+			toGoods (id) {
+				let activeTab = this.activeTab
+				uni.navigateTo({
+					url: `/pages/rent/detail?id=${id}&activeTab=${activeTab}`
+				})
+			},
+			
+			getList () {
+				this.loadingText = '正在加载...'
+				this.$api.getPersonalList({
+					role: this.activeTab
+				}).then(res => {
+					res.data.forEach((item) => {
+						item.imgUrlList = item.chamber_img_url && item.chamber_img_url.split(',') || []
 					})
-				}
-				
+				   this.productList = res.data
+				   if (!this.productList.length) {
+					   this.loadingText = '暂无更多数据'
+				   } else {
+					  this.loadingText = '' 
+				   }
+				}).catch(err => {
+				})
 			}
 		},
-		onLoad (){
-			console.log(1111)
+		onLoad (options){
+			if (options && options.activeTab) {
+				this.activeTab == 2
+				this.getList()
+			} else {
+				this.getList()
+			}
+		},
+		
+		onShow() {
+			// this.activeTab = 1
+			// this.getList()
+			this.$store.dispatch('cleanunread', {type: 1})
+			uni.getStorage({
+			    key: 'renttype',
+			    success: (res) => {
+					if (res && res.data && res.data == 2) {
+						this.activeTab == 2
+						this.getList()
+					} else {
+						this.getList()
+					}
+			    },
+				fail: () => {
+					this.getList()
+				}
+			});
+			this.$store.dispatch('getusermsg')
+			this.$store.dispatch('cleanunread', {type: 1})
+			// uni.setStorage({key: 'renttype', data: '1'});
 		}
 	}
 </script>
 
 <style lang="scss">
 	.rent-page{
+		background-color: #fff;
+		min-height: 100vh;
+		.cu-tag[class*="line-"]::after {
+		    border-radius: 4px;
+		}
+		.loading-text {
+			width: 100%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			color: #979797;
+			padding: 30upx 0;
+			font-size: 24upx;
+			text-align: center;
+		}
 		.tab-wrap{
 			display: flex;
 			margin-bottom:20upx;
@@ -110,18 +183,8 @@
 					height: 30upx;
 				}
 			}
-			.loading-text {
-				width: 100%;
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				height: 60upx;
-				color: #979797;
-				font-size: 24upx;
-			}
 			.product-list {
-				width: 92%;
-				padding: 0 4% 3vw 4%;
+				padding: 0 4% 8upx 4%;
 				display: flex;
 				justify-content: space-between;
 				flex-wrap: wrap;
@@ -132,9 +195,12 @@
 					background-color: #fff;
 					margin: 8upx 0 15upx 0;
 					box-shadow: 0upx 5upx 25upx rgba(0, 0, 0, 0.1);
+					height: 200rpx;
 					image {
-						width: 35%;
-						border-radius: 20upx 20upx 0 0;
+						width: 38%;
+						height: 94% !important;
+						border-radius: 10upx;
+						margin-top: 1%;
 					}
 					.right{
 						width: 60%;
@@ -142,25 +208,18 @@
 						display: flex;
 						flex-direction: column;
 						justify-conten: space-around;
+						uni-view{
+							line-height:1.6;
+						}
 						.name {
-							padding: 10upx 0;
-							display: -webkit-box;
-							-webkit-box-orient: vertical;
-							-webkit-line-clamp: 2;
 							text-align: justify;
 							overflow: hidden;
 							font-size: $uni-font-size-lg;
-						}
-						.price {
-							padding-top: 30upx;
-							padding-bottom: 10upx;
-							color: #e65339;
-							font-size: 30upx;
 							font-weight: 600;
+							padding-bottom: 2upx;
 						}
-						.slogan {
-							color: #807c87;
-							font-size: 24upx;
+						.info {
+							font-size: $uni-font-size-sm;
 						}
 					}
 				}
