@@ -77,7 +77,8 @@
     color: #999;
 }
 .rentdetail .rent-list text {
-    padding-right: 20rpx;
+    padding: 0 8rpx;
+    box-sizing: border-box;
 }
 .rentdetail .rent-list .rent-item {
     line-height: 64rpx;
@@ -89,10 +90,21 @@
     box-sizing: border-box;
     border: 1rpx solid #e7e7e7;
 }
+.rentdetail .rent-list .rent-item .name {
+      width: 25%;
+}
+.rentdetail .rent-list .rent-item .sex {
+      width: 12%;
+}
+.rentdetail .rent-list .rent-item .college {
+      width: 25%;
+}
+.rentdetail .rent-list .rent-item .hobby {
+      width: 38%;
+}
 .rentdetail .rent-list .rent-item text {
       -webkit-flex-shrink: 0;
               flex-shrink: 0;
-      padding: 0 36rpx 0 4rpx;
 }
 .rentdetail .cu-tag {
     padding-top: 0;

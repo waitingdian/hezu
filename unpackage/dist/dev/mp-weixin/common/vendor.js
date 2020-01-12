@@ -354,6 +354,7 @@ var interceptors = {
 
 
 var baseApi = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   upx2px: upx2px,
   interceptors: interceptors,
   addInterceptor: addInterceptor,
@@ -540,6 +541,7 @@ function getProvider(_ref2)
 }
 
 var extraApi = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   getProvider: getProvider });
 
 
@@ -575,6 +577,7 @@ function $emit() {
 }
 
 var eventApi = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   $on: $on,
   $off: $off,
   $once: $once,
@@ -583,8 +586,8 @@ var eventApi = /*#__PURE__*/Object.freeze({
 
 
 
-var api = /*#__PURE__*/Object.freeze({});
-
+var api = /*#__PURE__*/Object.freeze({
+  __proto__: null });
 
 
 var MPPage = Page;
@@ -1218,14 +1221,17 @@ var mocks = ['__route__', '__wxExparserNodeId__', '__wxWebviewId__'];
 
 function findVmByVueId(vm, vuePid) {
   var $children = vm.$children;
-  // 优先查找直属
-  var parentVm = $children.find(function (childVm) {return childVm.$scope._$vueId === vuePid;});
-  if (parentVm) {
-    return parentVm;
+  // 优先查找直属(反向查找:https://github.com/dcloudio/uni-app/issues/1200)
+  for (var i = $children.length - 1; i >= 0; i--) {
+    var childVm = $children[i];
+    if (childVm.$scope._$vueId === vuePid) {
+      return childVm;
+    }
   }
   // 反向递归查找
-  for (var i = $children.length - 1; i >= 0; i--) {
-    parentVm = findVmByVueId($children[i], vuePid);
+  var parentVm;
+  for (var _i = $children.length - 1; _i >= 0; _i--) {
+    parentVm = findVmByVueId($children[_i], vuePid);
     if (parentVm) {
       return parentVm;
     }
@@ -1537,7 +1543,7 @@ uni$1;exports.default = _default;
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* WEBPACK VAR INJECTION */(function(global) {/*!
- * Vue.js v2.6.10
+ * Vue.js v2.6.11
  * (c) 2014-2019 Evan You
  * Released under the MIT License.
  */
@@ -2236,7 +2242,13 @@ var uid = 0;
  * directives subscribing to it.
  */
 var Dep = function Dep () {
-  this.id = uid++;
+  // fixed by xxxxxx (nvue vuex)
+  /* eslint-disable no-undef */
+  if(typeof SharedObject !== 'undefined'){
+    this.id = SharedObject.uid++;
+  } else {
+    this.id = uid++;
+  }
   this.subs = [];
 };
 
@@ -3500,7 +3512,7 @@ if (typeof Promise !== 'undefined' && isNative(Promise)) {
   };
 } else if (typeof setImmediate !== 'undefined' && isNative(setImmediate)) {
   // Fallback to setImmediate.
-  // Techinically it leverages the (macro) task queue,
+  // Technically it leverages the (macro) task queue,
   // but it is still a better choice than setTimeout.
   timerFunc = function () {
     setImmediate(flushCallbacks);
@@ -3566,7 +3578,7 @@ if (true) {
     warn(
       "Property \"" + key + "\" must be accessed with \"$data." + key + "\" because " +
       'properties starting with "$" or "_" are not proxied in the Vue instance to ' +
-      'prevent conflicts with Vue internals' +
+      'prevent conflicts with Vue internals. ' +
       'See: https://vuejs.org/v2/api/#data',
       target
     );
@@ -3766,17 +3778,48 @@ function updateListeners (
 
 /*  */
 
+// fixed by xxxxxx (mp properties)
+function extractPropertiesFromVNodeData(data, Ctor, res, context) {
+  var propOptions = Ctor.options.mpOptions && Ctor.options.mpOptions.properties;
+  if (isUndef(propOptions)) {
+    return res
+  }
+  var externalClasses = Ctor.options.mpOptions.externalClasses || [];
+  var attrs = data.attrs;
+  var props = data.props;
+  if (isDef(attrs) || isDef(props)) {
+    for (var key in propOptions) {
+      var altKey = hyphenate(key);
+      var result = checkProp(res, props, key, altKey, true) ||
+          checkProp(res, attrs, key, altKey, false);
+      // externalClass
+      if (
+        result &&
+        res[key] &&
+        externalClasses.indexOf(altKey) !== -1 &&
+        context[camelize(res[key])]
+      ) {
+        // 赋值 externalClass 真正的值(模板里 externalClass 的值可能是字符串)
+        res[key] = context[camelize(res[key])];
+      }
+    }
+  }
+  return res
+}
+
 function extractPropsFromVNodeData (
   data,
   Ctor,
-  tag
+  tag,
+  context// fixed by xxxxxx
 ) {
   // we are only extracting raw values here.
   // validation and default values are handled in the child
   // component itself.
   var propOptions = Ctor.options.props;
   if (isUndef(propOptions)) {
-    return
+    // fixed by xxxxxx
+    return extractPropertiesFromVNodeData(data, Ctor, {}, context)
   }
   var res = {};
   var attrs = data.attrs;
@@ -3804,7 +3847,8 @@ function extractPropsFromVNodeData (
       checkProp(res, attrs, key, altKey, false);
     }
   }
-  return res
+  // fixed by xxxxxx
+  return extractPropertiesFromVNodeData(data, Ctor, res, context)
 }
 
 function checkProp (
@@ -4137,12 +4181,12 @@ function renderList (
   if (Array.isArray(val) || typeof val === 'string') {
     ret = new Array(val.length);
     for (i = 0, l = val.length; i < l; i++) {
-      ret[i] = render(val[i], i);
+      ret[i] = render(val[i], i, i, i); // fixed by xxxxxx
     }
   } else if (typeof val === 'number') {
     ret = new Array(val);
     for (i = 0; i < val; i++) {
-      ret[i] = render(i + 1, i);
+      ret[i] = render(i + 1, i, i, i); // fixed by xxxxxx
     }
   } else if (isObject(val)) {
     if (hasSymbol && val[Symbol.iterator]) {
@@ -4150,7 +4194,7 @@ function renderList (
       var iterator = val[Symbol.iterator]();
       var result = iterator.next();
       while (!result.done) {
-        ret.push(render(result.value, ret.length));
+        ret.push(render(result.value, ret.length, i++, i)); // fixed by xxxxxx
         result = iterator.next();
       }
     } else {
@@ -4158,7 +4202,7 @@ function renderList (
       ret = new Array(keys.length);
       for (i = 0, l = keys.length; i < l; i++) {
         key = keys[i];
-        ret[i] = render(val[key], key, i);
+        ret[i] = render(val[key], key, i, i); // fixed by xxxxxx
       }
     }
   }
@@ -4193,7 +4237,8 @@ function renderSlot (
       }
       props = extend(extend({}, bindObject), props);
     }
-    nodes = scopedSlotFn(props) || fallback;
+    // fixed by xxxxxx app-plus scopedSlot
+    nodes = scopedSlotFn(props, this, props._i) || fallback;
   } else {
     nodes = this.$slots[name] || fallback;
   }
@@ -4421,7 +4466,7 @@ function bindDynamicKeys (baseObj, values) {
     if (typeof key === 'string' && key) {
       baseObj[values[i]] = values[i + 1];
     } else if ( true && key !== '' && key !== null) {
-      // null is a speical value for explicitly removing a binding
+      // null is a special value for explicitly removing a binding
       warn(
         ("Invalid value for dynamic directive argument (expected string or null): " + key),
         this
@@ -4645,6 +4690,8 @@ var componentVNodeHooks = {
     var context = vnode.context;
     var componentInstance = vnode.componentInstance;
     if (!componentInstance._isMounted) {
+      callHook(componentInstance, 'onServiceCreated');
+      callHook(componentInstance, 'onServiceAttached');
       componentInstance._isMounted = true;
       callHook(componentInstance, 'mounted');
     }
@@ -4734,7 +4781,7 @@ function createComponent (
   }
 
   // extract props
-  var propsData = extractPropsFromVNodeData(data, Ctor, tag);
+  var propsData = extractPropsFromVNodeData(data, Ctor, tag, context); // fixed by xxxxxx
 
   // functional component
   if (isTrue(Ctor.options.functional)) {
@@ -4917,6 +4964,12 @@ function _createElement (
     ns = (context.$vnode && context.$vnode.ns) || config.getTagNamespace(tag);
     if (config.isReservedTag(tag)) {
       // platform built-in elements
+      if ( true && isDef(data) && isDef(data.nativeOn)) {
+        warn(
+          ("The .native modifier for v-on is only valid on components but it was used on <" + tag + ">."),
+          context
+        );
+      }
       vnode = new VNode(
         config.parsePlatformTagName(tag), data, children,
         undefined, undefined, context
@@ -5042,7 +5095,7 @@ function renderMixin (Vue) {
     // render self
     var vnode;
     try {
-      // There's no need to maintain a stack becaues all render fns are called
+      // There's no need to maintain a stack because all render fns are called
       // separately from one another. Nested component's render fns are called
       // when parent component is patched.
       currentRenderingInstance = vm;
@@ -5577,7 +5630,10 @@ function updateChildComponent (
     // keep a copy of raw propsData
     vm.$options.propsData = propsData;
   }
-
+  
+  // fixed by xxxxxx update properties(mp runtime)
+  vm._$updateProperties && vm._$updateProperties(vm);
+  
   // update listeners
   listeners = listeners || emptyObject;
   var oldListeners = vm.$options._parentListeners;
@@ -6896,7 +6952,7 @@ Object.defineProperty(Vue, 'FunctionalRenderContext', {
   value: FunctionalRenderContext
 });
 
-Vue.version = '2.6.10';
+Vue.version = '2.6.11';
 
 /**
  * https://raw.githubusercontent.com/Tencent/westore/master/packages/westore/utils/diff.js
@@ -7286,7 +7342,13 @@ function getTarget(obj, path) {
 function internalMixin(Vue) {
 
   Vue.config.errorHandler = function(err) {
-    console.error(err);
+    /* eslint-disable no-undef */
+    var app = getApp();
+    if (app && app.onError) {
+      app.onError(err);
+    } else {
+      console.error(err);
+    }
   };
 
   var oldEmit = Vue.prototype.$emit;
@@ -7306,9 +7368,21 @@ function internalMixin(Vue) {
 
   MP_METHODS.forEach(function (method) {
     Vue.prototype[method] = function(args) {
-      if (this.$scope) {
+      if (this.$scope && this.$scope[method]) {
         return this.$scope[method](args)
       }
+      // mp-alipay
+      if (typeof my === 'undefined') {
+        return
+      }
+      if (method === 'createSelectorQuery') {
+        /* eslint-disable no-undef */
+        return my.createSelectorQuery(args)
+      } else if (method === 'createIntersectionObserver') {
+        /* eslint-disable no-undef */
+        return my.createIntersectionObserver(args)
+      }
+      // TODO mp-alipay 暂不支持 selectAllComponents,selectComponent
     };
   });
 
@@ -7329,7 +7403,7 @@ function internalMixin(Vue) {
       }
     }
     if (vm._hasHookEvent) {
-      vm.$emit('hook:' + hook);
+      vm.$emit('hook:' + hook, args);
     }
     popTarget();
     return ret
@@ -7520,9 +7594,9 @@ module.exports = g;
 
 /***/ }),
 /* 4 */
-/*!**********************************************!*\
-  !*** D:/之前的/hello/hello(9)/hello/pages.json ***!
-  \**********************************************/
+/*!***************************!*\
+  !*** G:/hello/pages.json ***!
+  \***************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -8423,24 +8497,24 @@ main();
 /*! exports provided: _from, _id, _inBundle, _integrity, _location, _phantomChildren, _requested, _requiredBy, _resolved, _shasum, _spec, _where, author, bugs, bundleDependencies, deprecated, description, devDependencies, files, gitHead, homepage, license, main, name, repository, scripts, version, default */
 /***/ (function(module) {
 
-module.exports = {"_from":"@dcloudio/uni-stat@^2.0.0-alpha-24420191128001","_id":"@dcloudio/uni-stat@2.0.0-v3-24020191018001","_inBundle":false,"_integrity":"sha512-nYBm5pRrYzrj2dKMqucWSF2PwInUMnn3MLHM/ik3gnLUEKSW61rzcY1RPlUwaH7c+Snm6N+bAJzmj3GvlrlVXA==","_location":"/@dcloudio/uni-stat","_phantomChildren":{},"_requested":{"type":"range","registry":true,"raw":"@dcloudio/uni-stat@^2.0.0-alpha-24420191128001","name":"@dcloudio/uni-stat","escapedName":"@dcloudio%2funi-stat","scope":"@dcloudio","rawSpec":"^2.0.0-alpha-24420191128001","saveSpec":null,"fetchSpec":"^2.0.0-alpha-24420191128001"},"_requiredBy":["/","/@dcloudio/vue-cli-plugin-uni"],"_resolved":"https://registry.npmjs.org/@dcloudio/uni-stat/-/uni-stat-2.0.0-v3-24020191018001.tgz","_shasum":"6ef04326cc0b945726413eebe442ab8f47c7536c","_spec":"@dcloudio/uni-stat@^2.0.0-alpha-24420191128001","_where":"/Users/guoshengqiang/Documents/dcloud-plugins/alpha/uniapp-cli","author":"","bugs":{"url":"https://github.com/dcloudio/uni-app/issues"},"bundleDependencies":false,"deprecated":false,"description":"","devDependencies":{"@babel/core":"^7.5.5","@babel/preset-env":"^7.5.5","eslint":"^6.1.0","rollup":"^1.19.3","rollup-plugin-babel":"^4.3.3","rollup-plugin-clear":"^2.0.7","rollup-plugin-commonjs":"^10.0.2","rollup-plugin-copy":"^3.1.0","rollup-plugin-eslint":"^7.0.0","rollup-plugin-json":"^4.0.0","rollup-plugin-node-resolve":"^5.2.0","rollup-plugin-replace":"^2.2.0","rollup-plugin-uglify":"^6.0.2"},"files":["dist","package.json","LICENSE"],"gitHead":"197e8df53cc9d4c3f6eb722b918ccf51672b5cfe","homepage":"https://github.com/dcloudio/uni-app#readme","license":"Apache-2.0","main":"dist/index.js","name":"@dcloudio/uni-stat","repository":{"type":"git","url":"git+https://github.com/dcloudio/uni-app.git","directory":"packages/uni-stat"},"scripts":{"build":"NODE_ENV=production rollup -c rollup.config.js","dev":"NODE_ENV=development rollup -w -c rollup.config.js"},"version":"2.0.0-v3-24020191018001"};
+module.exports = {"_from":"@dcloudio/uni-stat@alpha","_id":"@dcloudio/uni-stat@2.0.0-alpha-25120200103005","_inBundle":false,"_integrity":"sha512-nYoIrRV2e5o/vzr6foSdWi3Rl2p0GuO+LPY3JctyY6uTKgPnuH99d7aL/QQdJ1SacQjBWO+QGK1qankN7oyrWw==","_location":"/@dcloudio/uni-stat","_phantomChildren":{},"_requested":{"type":"tag","registry":true,"raw":"@dcloudio/uni-stat@alpha","name":"@dcloudio/uni-stat","escapedName":"@dcloudio%2funi-stat","scope":"@dcloudio","rawSpec":"alpha","saveSpec":null,"fetchSpec":"alpha"},"_requiredBy":["#USER","/","/@dcloudio/vue-cli-plugin-uni"],"_resolved":"https://registry.npmjs.org/@dcloudio/uni-stat/-/uni-stat-2.0.0-alpha-25120200103005.tgz","_shasum":"a77a63481f36474f3e86686868051219d1bb12df","_spec":"@dcloudio/uni-stat@alpha","_where":"/Users/guoshengqiang/Documents/dcloud-plugins/alpha/uniapp-cli","author":"","bugs":{"url":"https://github.com/dcloudio/uni-app/issues"},"bundleDependencies":false,"deprecated":false,"description":"","devDependencies":{"@babel/core":"^7.5.5","@babel/preset-env":"^7.5.5","eslint":"^6.1.0","rollup":"^1.19.3","rollup-plugin-babel":"^4.3.3","rollup-plugin-clear":"^2.0.7","rollup-plugin-commonjs":"^10.0.2","rollup-plugin-copy":"^3.1.0","rollup-plugin-eslint":"^7.0.0","rollup-plugin-json":"^4.0.0","rollup-plugin-node-resolve":"^5.2.0","rollup-plugin-replace":"^2.2.0","rollup-plugin-uglify":"^6.0.2"},"files":["dist","package.json","LICENSE"],"gitHead":"6be187a3dfe15f95dd6146d9fec08e1f81100987","homepage":"https://github.com/dcloudio/uni-app#readme","license":"Apache-2.0","main":"dist/index.js","name":"@dcloudio/uni-stat","repository":{"type":"git","url":"git+https://github.com/dcloudio/uni-app.git","directory":"packages/uni-stat"},"scripts":{"build":"NODE_ENV=production rollup -c rollup.config.js","dev":"NODE_ENV=development rollup -w -c rollup.config.js"},"version":"2.0.0-alpha-25120200103005"};
 
 /***/ }),
 /* 7 */
-/*!***************************************************************!*\
-  !*** D:/之前的/hello/hello(9)/hello/pages.json?{"type":"style"} ***!
-  \***************************************************************/
+/*!********************************************!*\
+  !*** G:/hello/pages.json?{"type":"style"} ***!
+  \********************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _default = { "pages": { "pages/home/home": { "navigationStyle": "custom", "navigationBarTitleText": "首页", "usingComponents": {} }, "pages/register": { "navigationBarTitleText": "注册", "usingComponents": {} }, "pages/rent/rent": { "navigationStyle": "custom", "navigationBarTitleText": "我的合租", "usingComponents": {} }, "pages/user/mine": { "navigationStyle": "custom", "navigationBarTitleText": "我的信息", "usingComponents": {} }, "pages/chat/list": { "navigationStyle": "custom", "navigationBarTitleText": "聊一聊", "usingComponents": {} }, "pages/login": { "navigationBarTitleText": "登录", "usingComponents": {} }, "pages/forget": { "navigationBarTitleText": "忘记密码", "usingComponents": {} }, "pages/agreement/login": { "navigationBarTitleText": "用户注册登录协议", "usingComponents": {} }, "pages/release/release": { "navigationStyle": "custom", "navigationBarTitleText": "发布", "usingComponents": {} }, "pages/release/prelease": { "navigationStyle": "custom", "navigationBarTitleText": "预租房发布", "usingComponents": { "mpvue-city-picker": "/components/mpvue-citypicker/mpvueCityPicker" } }, "pages/release/rentsharing": { "navigationStyle": "custom", "navigationBarTitleText": "合租房发布", "usingComponents": { "mpvue-city-picker": "/components/mpvue-citypicker/mpvueCityPicker" } }, "pages/home/detail": { "navigationStyle": "custom", "navigationBarTitleText": "详情", "usingComponents": {} }, "pages/rent/detail": { "navigationStyle": "custom", "navigationBarTitleText": "发布详情", "usingComponents": {} }, "pages/release/predetail": { "navigationStyle": "custom", "navigationBarTitleText": "发布详情", "usingComponents": {} }, "pages/release/rentdetail": { "navigationStyle": "custom", "navigationBarTitleText": "我的信息", "usingComponents": {} }, "pages/user/personal": { "navigationBarTitleText": "完善个人信息", "usingComponents": {} }, "pages/chat/detail": { "navigationStyle": "custom", "navigationBarTitleText": "聊一聊", "usingComponents": {} }, "pages/user/user": { "navigationStyle": "custom", "navigationBarTitleText": "设置", "usingComponents": {} } }, "globalStyle": { "navigationBarTextStyle": "black", "navigationBarTitleText": "uni-app", "navigationBarBackgroundColor": "#F8F8F8", "backgroundColor": "#F8F8F8" } };exports.default = _default;
+Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _default = { "pages": { "pages/home/home": { "navigationStyle": "custom", "navigationBarTitleText": "首页" }, "pages/register": { "navigationBarTitleText": "注册" }, "pages/rent/rent": { "navigationStyle": "custom", "navigationBarTitleText": "我的合租" }, "pages/user/mine": { "navigationStyle": "custom", "navigationBarTitleText": "我的信息" }, "pages/chat/list": { "navigationStyle": "custom", "navigationBarTitleText": "聊一聊" }, "pages/login": { "navigationBarTitleText": "登录" }, "pages/forget": { "navigationBarTitleText": "忘记密码" }, "pages/agreement/login": { "navigationBarTitleText": "用户注册登录协议" }, "pages/release/release": { "navigationStyle": "custom", "navigationBarTitleText": "发布" }, "pages/release/prelease": { "navigationStyle": "custom", "navigationBarTitleText": "预租房发布" }, "pages/release/rentsharing": { "navigationStyle": "custom", "navigationBarTitleText": "合租房发布" }, "pages/home/detail": { "navigationStyle": "custom", "navigationBarTitleText": "详情" }, "pages/rent/detail": { "navigationStyle": "custom", "navigationBarTitleText": "发布详情" }, "pages/release/predetail": { "navigationStyle": "custom", "navigationBarTitleText": "发布详情" }, "pages/release/rentdetail": { "navigationStyle": "custom", "navigationBarTitleText": "我的信息" }, "pages/user/personal": { "navigationBarTitleText": "完善个人信息" }, "pages/chat/detail": { "navigationStyle": "custom", "navigationBarTitleText": "聊一聊" }, "pages/user/user": { "navigationStyle": "custom", "navigationBarTitleText": "设置" }, "pages/user/about": { "navigationBarTitleText": "关于校友合租" } }, "globalStyle": { "navigationBarTextStyle": "black", "navigationBarTitleText": "uni-app", "navigationBarBackgroundColor": "#F8F8F8", "backgroundColor": "#F8F8F8" } };exports.default = _default;
 
 /***/ }),
 /* 8 */
-/*!**************************************************************!*\
-  !*** D:/之前的/hello/hello(9)/hello/pages.json?{"type":"stat"} ***!
-  \**************************************************************/
+/*!*******************************************!*\
+  !*** G:/hello/pages.json?{"type":"stat"} ***!
+  \*******************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -8454,9 +8528,9 @@ Object.defineProperty(exports, "__esModule", { value: true });exports.default = 
 /* 12 */,
 /* 13 */,
 /* 14 */
-/*!********************************************************************!*\
-  !*** ./node_modules/vue-loader/lib/runtime/componentNormalizer.js ***!
-  \********************************************************************/
+/*!**********************************************************************************************************!*\
+  !*** ./node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib/runtime/componentNormalizer.js ***!
+  \**********************************************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -8477,12 +8551,26 @@ function normalizeComponent (
   injectStyles,
   scopeId,
   moduleIdentifier, /* server only */
-  shadowMode /* vue-cli only */
+  shadowMode, /* vue-cli only */
+  components, // fixed by xxxxxx auto components
+  renderjs // fixed by xxxxxx renderjs
 ) {
   // Vue.extend constructor export interop
   var options = typeof scriptExports === 'function'
     ? scriptExports.options
     : scriptExports
+
+  // fixed by xxxxxx auto components
+  if (components) {
+    options.components = Object.assign(components, options.components || {})
+  }
+  // fixed by xxxxxx renderjs
+  if (renderjs) {
+    (renderjs.beforeCreate || (renderjs.beforeCreate = [])).unshift(function() {
+      this[renderjs.__module] = this
+    });
+    (options.mixins || (options.mixins = [])).push(renderjs)
+  }
 
   // render functions
   if (render) {
@@ -8560,9 +8648,9 @@ function normalizeComponent (
 
 /***/ }),
 /* 15 */
-/*!**************************************************!*\
-  !*** D:/之前的/hello/hello(9)/hello/store/index.js ***!
-  \**************************************************/
+/*!*******************************!*\
+  !*** G:/hello/store/index.js ***!
+  \*******************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -8575,7 +8663,8 @@ _vue.default.use(_vuex.default);
 var store = new _vuex.default.Store({
   state: {
     statename: '',
-    emptyRoomPic: 'https://hudongmsite.oss-cn-hangzhou.aliyuncs.com/meeting/basicHd2r4N1570498528514.jpg',
+    // emptyRoomPic: 'https://hudongmsite.oss-cn-hangzhou.aliyuncs.com/meeting/basicHd2r4N1570498528514.jpg',
+    emptyRoomPic: 'http://qiniutest001.fensibox.com/cotenant_20191222_182857_47643',
     userInfo: {} },
 
 
@@ -8598,6 +8687,7 @@ var store = new _vuex.default.Store({
       _index.default.getInfo().then(function (res) {
         uni.setStorageSync('userMsg', JSON.stringify(res.data));
         if (res.data && res.data.unread_group_count && res.data.unread_group_count > 0) {
+          console.log('set小红点3333');
           uni.setTabBarBadge({
             index: 1,
             text: res.data.unread_group_count + '' });
@@ -8623,9 +8713,9 @@ store;exports.default = _default;
 
 /***/ }),
 /* 16 */
-/*!*****************************************************!*\
-  !*** D:/之前的/hello/hello(9)/hello/common/request.js ***!
-  \*****************************************************/
+/*!**********************************!*\
+  !*** G:/hello/common/request.js ***!
+  \**********************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -8699,9 +8789,9 @@ request;exports.default = _default;
 
 /***/ }),
 /* 17 */
-/*!****************************************************!*\
-  !*** D:/之前的/hello/hello(9)/hello/common/config.js ***!
-  \****************************************************/
+/*!*********************************!*\
+  !*** G:/hello/common/config.js ***!
+  \*********************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -8710,16 +8800,16 @@ Object.defineProperty(exports, "__esModule", { value: true });exports.default = 
 
 if (true) {
   // 开发环境
-  url_config = 'http://47.105.221.99:8083';
+  url_config = 'https://api.xiaoyouhezu.com';
 } else {}var _default =
 
 url_config;exports.default = _default;
 
 /***/ }),
 /* 18 */
-/*!**************************************************!*\
-  !*** D:/之前的/hello/hello(9)/hello/common/util.js ***!
-  \**************************************************/
+/*!*******************************!*\
+  !*** G:/hello/common/util.js ***!
+  \*******************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -8787,9 +8877,9 @@ module.exports = {
 
 /***/ }),
 /* 19 */
-/*!************************************************!*\
-  !*** D:/之前的/hello/hello(9)/hello/api/index.js ***!
-  \************************************************/
+/*!*****************************!*\
+  !*** G:/hello/api/index.js ***!
+  \*****************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -8876,7 +8966,11 @@ api.sendChat = function (params) {return _request.default.globalRequest("/chat/s
 api.buildCommunication = function (params) {return _request.default.globalRequest("/chat/buildCommunication", 'POST', params);};
 
 // 1.6 清除未读消息
-api.cleanUnread = function (params) {return _request.default.globalRequest("/personal/clean/unread/".concat(params.type), 'GET', params);};var _default =
+api.cleanUnread = function (params) {return _request.default.globalRequest("/personal/clean/unread/".concat(params.type), 'GET', params);};
+
+// 1.6 清除未读消息
+api.updateSys = function (params) {return _request.default.globalRequest("/sys/update", 'GET');};var _default =
+
 
 api;exports.default = _default;
 
@@ -9838,9 +9932,9 @@ var index_esm = {
 /* 25 */,
 /* 26 */,
 /* 27 */
-/*!*********************************************************!*\
-  !*** D:/之前的/hello/hello(9)/hello/common/SDK/amap-wx.js ***!
-  \*********************************************************/
+/*!**************************************!*\
+  !*** G:/hello/common/SDK/amap-wx.js ***!
+  \**************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -9849,9 +9943,9 @@ function AMapWX(a) {this.key = a.key, this.requestConfig = { key: a.key, s: "rsx
 
 /***/ }),
 /* 28 */
-/*!*************************************************************************************!*\
-  !*** D:/之前的/hello/hello(9)/hello/components/mpvue-citypicker/city-data/province.js ***!
-  \*************************************************************************************/
+/*!******************************************************************!*\
+  !*** G:/hello/components/mpvue-citypicker/city-data/province.js ***!
+  \******************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -9999,9 +10093,9 @@ provinceData;exports.default = _default;
 
 /***/ }),
 /* 29 */
-/*!*********************************************************************************!*\
-  !*** D:/之前的/hello/hello(9)/hello/components/mpvue-citypicker/city-data/city.js ***!
-  \*********************************************************************************/
+/*!**************************************************************!*\
+  !*** G:/hello/components/mpvue-citypicker/city-data/city.js ***!
+  \**************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -10009,11 +10103,11 @@ provinceData;exports.default = _default;
 Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0; /* eslint-disable */
 var cityData = [
 [{
-  "label": "市辖区",
+  "label": "北京市",
   "value": "1101" }],
 
 [{
-  "label": "市辖区",
+  "label": "天津市",
   "value": "1201" }],
 
 [{
@@ -10303,7 +10397,7 @@ var cityData = [
 
 
 [{
-  "label": "市辖区",
+  "label": "上海市",
   "value": "3101" }],
 
 [{
@@ -10971,7 +11065,7 @@ var cityData = [
 
 
 [{
-  "label": "市辖区",
+  "label": " 重庆市",
   "value": "5001" },
 
 {
@@ -11512,9 +11606,9 @@ cityData;exports.default = _default;
 
 /***/ }),
 /* 30 */
-/*!*********************************************************************************!*\
-  !*** D:/之前的/hello/hello(9)/hello/components/mpvue-citypicker/city-data/area.js ***!
-  \*********************************************************************************/
+/*!**************************************************************!*\
+  !*** G:/hello/components/mpvue-citypicker/city-data/area.js ***!
+  \**************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -24063,200 +24157,7 @@ var areaData = [
 areaData;exports.default = _default;
 
 /***/ }),
-/* 31 */
-/*!**********************************************************************!*\
-  !*** D:/之前的/hello/hello(9)/hello/components/ss-select-city/citys.js ***!
-  \**********************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var citys = [
-{
-  "letter": "A",
-  "list": [
-  "安远", "安义", "安溪", "安丘", "安宁", "安吉", "安福", "阿城", "安阳", "安顺", "鞍山", "安庆", "安康", "阿里",
-  "阿勒泰", "阿拉善盟", "阿克苏", "阿坝"] },
-
-
-{
-  "letter": "B",
-  "list": [
-  "北京", "博兴", "博罗", "博爱", "璧山", "宾阳", "宾县", "滨海", "巴彦", "宝应", "亳州", "博尔塔拉", "滨州", "毕节",
-  "本溪", "北海", "巴中", "巴音郭楞", "巴彦淖尔", "包头", "保山", "宝鸡", "保定", "蚌埠", "白银", "白山", "百色", "白城"] },
-
-
-{
-  "letter": "C",
-  "list": [
-  "成都", "常州", "长沙", "长春", "重庆", "朝阳", "巢湖", "长治", "昌吉", "昌都", "常德", "沧州", "郴州", "承德", "潮州",
-  "滁州", "楚雄", "崇左", "池州", "赤峰", "枞阳", "从化", "慈溪", "淳安", "崇州", "崇义", "崇仁", "茌平", "成武", "城口",
-  "呈贡", "潮安", "昌邑", "长兴", "长汀", "长泰", "常熟", "常山", "昌乐", "长乐", "长海", "长丰", "长岛", "曹县", "苍山",
-  "苍南"] },
-
-
-{
-  "letter": "D",
-  "list": [
-  "丹东", "大理", "东莞", "大连", "大兴安岭", "大同", "大庆", "德州", "德阳", "德宏", "达州", "大丰", "东营", "迪庆",
-  "定西", "单县", "当涂", "砀山", "岱山", "大邑", "大田", "大埔", "丹阳", "德化", "德安", "大足", "大余", "德庆", "德清",
-  "登封", "德惠", "定南", "垫江", "电白", "德兴", "东海", "东阿", "定远", "定陶", "东台", "东山", "东平", "东明", "东源",
-  "东阳", "东乡", "洞头", "都江堰", "都昌", "东至"] },
-
-
-{
-  "letter": "E",
-  "list": [
-  "鄂尔多斯", "恩施", "恩平", "鄂州"] },
-
-
-{
-  "letter": "F",
-  "list": [
-  "佛山", "福州", "防城港", "抚顺", "阜新", "阜阳", "抚州", "法库", "富阳", "福清", "阜宁", "阜南", "富民", "浮梁", "福鼎",
-  "福安", "佛冈", "分宜", "凤阳", "奉新", "丰县", "凤台", "丰顺", "封开", "奉节", "奉化", "丰都", "丰城", "费县", "肥西",
-  "肥东", "肥城", "方正", "繁昌"] },
-
-
-{
-  "letter": "G",
-  "list": [
-  "广州", "贵阳", "甘南", "赣州", "甘孜", "广安", "广元", "贵港", "桂林", "果洛", "固原", "赣县", "赣榆", "高安", "固镇",
-  "古田", "贵溪", "灌云", "冠县", "灌南", "光泽", "广饶", "广宁", "广丰", "广德", "广昌", "巩义", "高州", "高邮", "高邑",
-  "高要", "高唐", "高青", "高密", "高陵", "皋兰", "高淳", "藁城"] },
-
-
-{
-  "letter": "H",
-  "list": [
-  "杭州", "哈尔滨", "邯郸", "海口", "黑河", "合肥", "鹤岗", "河池", "鹤壁", "汉中", "哈密", "海西", "海南", "海东", "海北",
-  "惠州", "呼伦贝尔", "葫芦岛", "呼和浩特", "黄石", "黄山", "黄南", "黄冈", "淮南", "怀化", "淮北", "淮安", "红河", "贺州",
-  "菏泽", "河源", "和田地", "衡阳", "衡水", "怀远", "怀宁", "怀集", "桦甸", "华安", "洪泽", "和县", "鹤山", "和平", "横县",
-  "横峰", "合川", "含山", "海阳", "海盐", "海宁", "海门", "海丰", "海安", "湖州", "户县", "霍山", "霍邱", "呼兰", "湖口",
-  "惠民", "惠来", "惠东", "会昌", "惠安", "化州", "桓台"] },
-
-
-{
-  "letter": "J",
-  "list": [
-  "鸡西", "酒泉", "九江", "锦州", "晋中", "济宁", "金华", "荆州", "荆门", "景德镇", "晋城", "金昌", "揭阳", "嘉峪关", "吉安",
-  "江门", "佳木斯", "济南", "吉林", "嘉兴", "焦作", "井冈山", "旌德", "靖安", "即墨", "揭西", "界首", "揭东", "嘉祥", "嘉善",
-  "胶州", "胶南", "蕉岭", "蛟河", "吉安", "建阳", "建瓯", "建宁", "建湖", "江阴", "姜堰", "江山", "将乐", "江津", "江都", "建德",
-  "九台", "九江", "吉水", "晋州", "金寨", "缙云", "金乡", "金溪", "进贤", "金堂", "金坛", "晋宁", "金门", "晋江", "金湖", "井陉",
-  "泾县", "景宁", "靖江", "巨野", "莒县", "句容", "莒南", "鄄城", "济源", "济阳", "绩溪"] },
-
-
-{
-  "letter": "K",
-  "list": [
-  "昆明", "开封", "喀什地", "克拉玛依", "克孜勒", "开化", "开平", "开县", "开阳", "康平", "垦利", "昆山"] },
-
-
-{
-  "letter": "L",
-  "list": [
-  "连云港", "凉山", "乐山", "拉萨", "廊坊", "莱芜", "来宾", "洛阳", "柳州", "兰州", "六盘水", "六安", "丽水", "林芝", "临沂", "临夏",
-  "临汾", "临沧", "丽江", "辽源", "辽阳", "聊城", "乐亭", "乐清", "乐平", "乐陵", "雷州", "乐昌", "乐安", "兰溪", "蓝田", "郎溪",
-  "莱州", "莱阳", "莱西", "来安", "吕梁", "泸州", "漯河", "娄底", "龙岩", "陇南", "临邑", "临沭", "临朐", "临泉", "临清", "临海",
-  "陵县", "灵寿", "灵璧", "临安", "利津", "黎川", "辽中", "连州", "涟水", "连山", "连平", "连南", "廉江", "连江", "莲花", "梁山",
-  "梁平", "连城", "鹿寨", "芦溪", "禄劝", "鹿泉", "罗源", "洛宁", "罗定", "庐江", "陆河", "陆丰", "滦县", "滦南", "栾川", "栾城",
-  "龙游", "龙泉", "龙南", "龙门", "龙口", "龙海", "龙川", "隆安", "溧阳", "利辛", "浏阳", "柳江", "柳城", "溧水"] },
-
-
-{
-  "letter": "M",
-  "list": [
-  "马鞍山", "茂名", "眉山", "梅州", "绵阳", "牡丹江", "马山", "梅县", "蒙城", "孟津", "蒙阴", "孟州", "明光", "明溪", "闽侯", "闽清",
-  "木兰"] },
-
-
-{
-  "letter": "N",
-  "list": [
-  "南昌", "南京", "南宁", "南通", "宁波", "南充", "南平", "南阳", "那曲", "内江", "宁德", "怒江", "南安", "南澳", "南城", "南川", "南丰",
-  "南靖", "南康", "南陵", "南雄", "宁都", "宁国", "宁海", "宁化", "宁津", "宁乡", "宁阳", "农安"] },
-
-
-{
-  "letter": "P",
-  "list": [
-  "盘锦", "攀枝花", "平顶山", "平凉", "萍乡", "普洱", "莆田", "濮阳", "磐安", "磐石", "沛县", "蓬莱", "彭水", "彭泽", "彭州", "平度",
-  "平和", "平湖", "屏南", "平山", "平潭", "平阳", "平阴", "平邑", "平原", "平远", "郫县", "邳州", "鄱阳", "浦城", "浦江", "蒲江", "普兰店",
-  "普宁"] },
-
-
-{
-  "letter": "Q",
-  "list": [
-  "青岛", "泉州", "黔东", "黔南", "黔西南", "庆阳", "清远", "秦皇岛", "钦州", "齐齐哈尔", "七台河", "曲靖", "衢州", "迁安", "潜山", "铅山",
-  "迁西", "启东", "齐河", "綦江", "祁门", "清流", "青田", "清新", "青阳", "庆元", "庆云", "清镇", "青州", "沁阳", "邛崃", "栖霞", "全椒",
-  "曲江", "曲阜", "全南"] },
-
-
-{
-  "letter": "R",
-  "list": [
-  "日喀则", "日照", "饶平", "仁化", "融安", "荣昌", "荣成", "融水", "如东", "如皋", "瑞安", "瑞昌", "瑞金", "乳山", "汝阳", "乳源"] },
-
-
-{
-  "letter": "S",
-  "list": [
-  "上海", "沈阳", "深圳", "石家庄", "苏州", "三门峡", "三明", "三亚", "商丘", "商洛", "上饶", "汕尾", "汕头", "绍兴", "韶关", "山南", "邵阳",
-  "十堰", "双鸭山", "石嘴山", "绥化", "松原", "四平", "朔州", "泗阳", "泗县", "泗水", "四会", "泗洪", "沭阳", "顺昌", "舒兰", "舒城", "双流",
-  "双城", "寿县", "寿宁", "寿光", "石柱", "始兴", "石台", "石狮", "石林", "石城", "射阳", "歙县", "深泽", "莘县", "嵊州", "嵊泗", "沙县", "绍兴",
-  "邵武", "尚志", "上虞", "上犹", "上饶", "上林", "上栗", "商河", "上杭", "上高", "诏安", "三门", "三江", "松阳", "嵩县", "松溪", "嵩明", "宿州",
-  "宿迁", "随州", "遂宁", "宿松", "遂溪", "濉溪", "睢宁", "遂川", "遂昌", "宿豫"] },
-
-
-{
-  "letter": "T",
-  "list": [
-  "天津", "台州", "唐山", "塔城地", "泰安", "太原", "泰州", "天水", "铁岭", "铜川", "通化", "通辽", "铜陵", "铜仁", "通州", "桐乡", "铜山", "潼南",
-  "桐庐", "铜陵", "铜梁", "通河", "铜鼓", "桐城", "天台", "天长", "滕州", "唐海", "郯城", "泰兴", "泰顺", "台山", "泰宁", "太湖", "泰和", "太和", "太仓",
-  "吐鲁番"] },
-
-
-{
-  "letter": "W",
-  "list": [
-  "潍坊", "威海", "武汉", "无锡", "渭南", "文山", "温州", "乌海", "芜湖", "乌兰察布", "乌鲁木齐", "武威", "吴忠", "武陟", "婺源", "武夷山", "武义", "巫溪",
-  "无为", "巫山", "武平", "武宁", "武鸣", "武隆", "五莲", "吴江", "无极", "五华", "芜湖", "五河", "无棣", "吴川", "武城", "五常", "涡阳", "温县", "汶上",
-  "温岭", "翁源", "文登", "文成", "微山", "万载", "万年", "望江", "望城", "万安", "瓦房店", "梧州"] },
-
-
-{
-  "letter": "X",
-  "list": [
-  "厦门", "西安", "许昌", "徐州", "襄樊", "湘潭", "湘西", "咸宁", "咸阳", "孝感", "锡林郭勒盟", "兴安盟", "邢台", "西宁", "新乡", "信阳", "新余", "忻州",
-  "西双版纳", "宣城", "峡江", "夏津", "象山", "响水", "仙居", "仙游", "萧县", "霞浦", "息烽", "新安", "新昌", "信丰", "新丰", "新干", "兴国", "兴化", "兴宁",
-  "行唐", "荥阳", "星子", "辛集", "新建", "新津", "新乐", "新民", "新密", "新泰", "新兴", "新沂", "信宜", "新郑", "休宁", "秀山", "修水", "修文", "修武",
-  "寻甸", "盱眙", "徐闻", "寻乌"] },
-
-
-{
-  "letter": "Y",
-  "list": [
-  "扬州", "烟台", "雅安", "延安", "延边", "盐城", "阳江", "阳泉", "宜宾", "宜昌", "伊春", "宜春", "伊犁哈萨克", "银川", "营口", "鹰潭", "益阳", "永州", "岳阳",
-  "玉林", "榆林", "运城", "云浮", "玉树", "玉溪", "阳春", "阳东", "阳谷", "阳山", "阳信", "阳西", "扬中", "偃师", "延寿", "兖州", "伊川", "宜丰", "宜黄", "依兰",
-  "宜良", "沂南", "英德", "颍上", "沂水", "义乌", "黟县", "宜兴", "弋阳", "宜阳", "沂源", "仪征", "永安", "永川", "永春", "永登", "永定", "永丰", "永吉", "永嘉",
-  "永康", "邕宁", "永泰", "永新", "永修", "尤溪", "酉阳", "元氏", "禹城", "于都", "岳西", "余干", "玉环", "余江", "郁南", "云安", "郓城", "云和", "云霄", "云阳",
-  "玉山", "榆树", "鱼台", "玉田", "余姚", "榆中"] },
-
-
-{
-  "letter": "Z",
-  "list": [
-  "漳州", "遵化", "郑州", "中山", "珠海", "枣庄", "张家界", "张家口", "张掖", "湛江", "肇庆", "昭通", "镇江", "中卫", "周口", "舟山", "驻马店", "株洲", "淄博",
-  "自贡", "资阳", "遵义", "赞皇", "增城", "张家港", "漳平", "漳浦", "章丘", "樟树", "沾化", "赵县", "招远", "正定", "政和", "柘荣", "中牟", "忠县", "周宁",
-  "周至", "庄河", "诸城", "诸暨", "紫金", "资溪", "邹城", "邹平"] }];var _default =
-
-
-
-
-citys;exports.default = _default;
-
-/***/ }),
+/* 31 */,
 /* 32 */,
 /* 33 */,
 /* 34 */,
@@ -24280,11 +24181,10 @@ citys;exports.default = _default;
 /* 52 */,
 /* 53 */,
 /* 54 */,
-/* 55 */,
-/* 56 */
-/*!***********************************************************************************!*\
-  !*** D:/之前的/hello/hello(9)/hello/components/qiniu-wxapp-sdk/sdk/qiniuUploader.js ***!
-  \***********************************************************************************/
+/* 55 */
+/*!****************************************************************!*\
+  !*** G:/hello/components/qiniu-wxapp-sdk/sdk/qiniuUploader.js ***!
+  \****************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -24467,6 +24367,7 @@ citys;exports.default = _default;
 })();
 
 /***/ }),
+/* 56 */,
 /* 57 */,
 /* 58 */,
 /* 59 */,
@@ -24474,11 +24375,10 @@ citys;exports.default = _default;
 /* 61 */,
 /* 62 */,
 /* 63 */,
-/* 64 */,
-/* 65 */
-/*!*******************************************************************!*\
-  !*** D:/之前的/hello/hello(9)/hello/common/SDK/goeasy-1.0.0.beta.js ***!
-  \*******************************************************************/
+/* 64 */
+/*!************************************************!*\
+  !*** G:/hello/common/SDK/goeasy-1.0.0.beta.js ***!
+  \************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -30546,10 +30446,10 @@ citys;exports.default = _default;
 
 });
 ;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../../../../../软件/HBuilder/HBuilderX.2.4.6.20191210/HBuilderX/plugins/uniapp-cli/node_modules/buffer/index.js */ 66).Buffer))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/buffer/index.js */ 65).Buffer))
 
 /***/ }),
-/* 66 */
+/* 65 */
 /*!**************************************!*\
   !*** ./node_modules/buffer/index.js ***!
   \**************************************/
@@ -30567,9 +30467,9 @@ citys;exports.default = _default;
 
 
 
-var base64 = __webpack_require__(/*! base64-js */ 67)
-var ieee754 = __webpack_require__(/*! ieee754 */ 68)
-var isArray = __webpack_require__(/*! isarray */ 69)
+var base64 = __webpack_require__(/*! base64-js */ 66)
+var ieee754 = __webpack_require__(/*! ieee754 */ 67)
+var isArray = __webpack_require__(/*! isarray */ 68)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -32350,7 +32250,7 @@ function isnan (val) {
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../webpack/buildin/global.js */ 3)))
 
 /***/ }),
-/* 67 */
+/* 66 */
 /*!*****************************************!*\
   !*** ./node_modules/base64-js/index.js ***!
   \*****************************************/
@@ -32512,7 +32412,7 @@ function fromByteArray (uint8) {
 
 
 /***/ }),
-/* 68 */
+/* 67 */
 /*!***************************************!*\
   !*** ./node_modules/ieee754/index.js ***!
   \***************************************/
@@ -32606,7 +32506,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 69 */
+/* 68 */
 /*!***************************************!*\
   !*** ./node_modules/isarray/index.js ***!
   \***************************************/

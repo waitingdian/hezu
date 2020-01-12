@@ -6,8 +6,8 @@
 					<text class="cuIcon-back" style="color: #ccc;"></text>
 					<slot name="backText"></slot>
 				</view>
-				<view class="content" :style="[{top:StatusBar + 'px'}]" style="color: #000000;line-height: 86px;">
-					<slot name="content"></slot>
+				<view class="content" :style="[{top:StatusBar + 'px'}]" style="color: #000000;">
+					<slot name="content" style="padding-top: 40upx;"></slot>
 				</view>
 				<slot name="right"></slot>
 			</view>
@@ -20,7 +20,7 @@
 		data() {
 			return {
 				StatusBar: this.StatusBar,
-				CustomBar: 86
+				CustomBar: 90
 				// CustomBar: this.CustomBar
 			};
 		},

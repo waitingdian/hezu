@@ -164,7 +164,7 @@
 					uni.showToast({title: '发布成功',icon:"success"});
 					setTimeout(() => {
 						uni.switchTab({
-						    url: '/pages/home/home',
+						    url: '/pages/rent/rent',
 						    success: function(e) {
 						        uni.setStorage({
 						            key: 'hometype',

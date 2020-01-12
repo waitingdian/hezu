@@ -2,7 +2,7 @@
 	<view class="rentdetail">
 		<cu-custom bgColor="uni-custom-header-color" :isBack="true">
 			<block slot="backText" @tap="BackPage">返回</block>
-			<block slot="content">发布详情</block>
+			<block slot="content" style="line-height: 100upx;">发布详情</block>
 		</cu-custom>
 		
 		<view class="content padding-bottom-lg" v-show="detailInfo && detailInfo.id">
@@ -83,7 +83,7 @@
 		</view>
 		
 		<!-- 解散和组团 -->
-		<view class="cu-modal" :class="modalName=='DialogModal3'?'show':''">
+		<view class="cu-modal" v-if="modalName=='DialogModal3'" :class="modalName=='DialogModal3'?'show':''">
 			<view class="cu-dialog">
 				<view class="cu-bar bg-white justify-end">
 					<view class="content padding-top-sm">解散合租团</view>

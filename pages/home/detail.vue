@@ -3,10 +3,16 @@
 		<!-- 头部 -->
 		<cu-custom bgColor="uni-custom-header-color" :isBack="true">
 			<block slot="backText" @tap="BackPage">返回</block>
-			<block slot="content">详情</block>
+			<block slot="content" style="line-height: 100upx;">详情</block>
 			<block slot="right">
+				<!--  #ifdef  APP-PLUS -->
 				<view class="padding-right-lg report-btn" v-if="userInfo.user_id != detailInfo.leader_id" @tap="showModal" data-target="DialogModal1">举报</view>
+			    <!--  #endif -->
+				<!--  #ifdef  MP-WEIXIN -->
+				<view class="report-btn"style="position: absolute;right: 214upx;top:95upx;" v-if="userInfo.user_id != detailInfo.leader_id" @tap="showModal" data-target="DialogModal1">举报</view>
+				<!--  #endif -->
 			</block>
+			
 		</cu-custom>
 		
 		<view class="content padding-bottom-lg" v-if="detailInfo&&detailInfo.id">
@@ -74,29 +80,31 @@
 		</view>
 		
 		<!-- 举报模态框 -->
-		<view class="cu-modal" :class="modalName=='DialogModal1'?'show':''">
-			<view class="cu-dialog">
-				<view class="cu-bar bg-white justify-end">
-					<view class="content padding-top-sm">举报</view>
-					<view class="action" @tap="hideModal">
-						<text class="cuIcon-close text-red"></text>
+		<view v-if="modalName=='DialogModal1'">
+			<view class="cu-modal" :class="modalName=='DialogModal1'?'show':''">
+				<view class="cu-dialog">
+					<view class="cu-bar bg-white justify-end">
+						<view class="content padding-top-sm">举报</view>
+						<view class="action" @tap="hideModal">
+							<text class="cuIcon-close text-red"></text>
+						</view>
 					</view>
-				</view>
-				<view class="cu-form-group margin-top padding-xl margin-bottom" style="text-align: left;">
-					<textarea maxlength="-1" @input="textareaAInput" placeholder="请输入举报内容"></textarea>
-				</view>
-				<view class="cu-bar bg-white justify-end">
-					<view class="action">
-						<button class="cu-btn line-blue text-green" @tap="hideModal">取消</button>
-						<button class="cu-btn bg-blue margin-left" :disabled="!reportContent" @tap="reported">确定</button>
-		
+					<view class="cu-form-group margin-top padding-xl margin-bottom" style="text-align: left;">
+						<textarea maxlength="-1" @input="textareaAInput" placeholder="请输入举报内容"></textarea>
+					</view>
+					<view class="cu-bar bg-white justify-end">
+						<view class="action">
+							<button class="cu-btn line-blue text-green" @tap="hideModal">取消</button>
+							<button class="cu-btn bg-blue margin-left" :disabled="!reportContent" @tap="reported">确定</button>
+			
+						</view>
 					</view>
 				</view>
 			</view>
 		</view>
 		
 		<!-- 申请加入 -->
-		<view class="cu-modal" :class="modalName=='DialogModal2'?'show':''">
+		<view class="cu-modal" v-if="modalName=='DialogModal2'" :class="modalName=='DialogModal2'?'show':''">
 			<view class="cu-dialog">
 				<view class="cu-bar bg-white justify-end">
 					<view class="content padding-top-sm">申请加入</view>
