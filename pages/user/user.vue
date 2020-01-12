@@ -195,7 +195,7 @@
 <script>
 	// 可以删除
 	var util = require('@/common/util.js');
-	const qiniuUploader = require("@/components/qiniu-wxapp-sdk/sdk/qiniuUploader");
+	const qiniuUploader = require("@/common/SDK/qiniuUploader.js");
 	export default {
 		data() {
 			return {
