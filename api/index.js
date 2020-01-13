@@ -7,7 +7,6 @@ const PORT1 = 'baseinfo'
 //  用户
 // 1.1注册获取验证码
 api.register = params => request.globalRequest(`/user/register`, 'POST', params)
-
 // 1.2获取验证码
 api.sendMsg = params => request.globalRequest(`/sms/send`, 'GET', params)
 

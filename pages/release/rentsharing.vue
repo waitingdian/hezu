@@ -81,7 +81,7 @@
 	       mapMutations  
 	   } from 'vuex'; 
 	import mpvueCityPicker from '@/components/mpvue-citypicker/mpvueCityPicker.vue'
-	const qiniuUploader = require("@/components/qiniu-wxapp-sdk/sdk/qiniuUploader");
+	const qiniuUploader = require("@/common/SDK/qiniuUploader.js");
 	export default {
 		data() {
 			return {

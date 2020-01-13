@@ -2,12 +2,22 @@
 	<view class="home-page">
 		<cu-custom bgColor="uni-custom-header-color">
 			<block slot="content">首页</block>
+			
 			<block slot="right">
+				<!--  #ifdef  APP-PLUS -->
 				<view class="icon-btn" style="position: absolute;right: 20px;top:76upx;color: #000000;" @tap="toggleSelectCity">
 					<text class="cuIcon-locationfill lg text-gray padding-right-xs" ></text>
 					{{ city }}
 				</view>
+				<!--  #endif -->
+				<!--  #ifdef  MP-WEIXIN -->
+				<view class="icon-btn" style="position: absolute;right: 204upx;top:85upx;color: #000000;" @tap="toggleSelectCity">
+					<text class="cuIcon-locationfill lg text-gray padding-right-xs" ></text>
+					{{ city }}
+				</view>
+				<!--  #endif -->
 			</block>
+			
 		</cu-custom>
 	
 		<!-- 搜索框 -->
@@ -228,8 +238,6 @@
 			});
 			
 			this.initPosition()
-			
-			
 			// let curPage = this.getCurPage();
 			//在微信小程序或是app中，通过curPage.options；如果是H5，则需要curPage.$route.query（H5中的curPage.options为undefined，所以刚好就不需要条件编译了）
 			// let curParam = curPage.options || curPage.$route.query;

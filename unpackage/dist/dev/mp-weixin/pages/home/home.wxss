@@ -121,6 +121,7 @@
           display: flex;
           -webkit-flex-wrap: wrap;
                   flex-wrap: wrap;
+          padding-left: 30rpx;
 }
 .choose-city-wrap .content-wrap .select-city .section .city-list .city-item {
             width: 190rpx;

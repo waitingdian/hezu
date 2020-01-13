@@ -28,24 +28,25 @@
 					<text class="text-grey">意见反馈</text>
 				</view>
 			</view>
-			
-			<!-- 用户建议反馈模态框 -->
-			<view class="cu-modal" :class="modalName=='DialogModal1'?'show':''">
-				<view class="cu-dialog">
-					<view class="cu-bar bg-white justify-end">
-						<view class="content padding-top-sm">用户建议反馈</view>
-						<view class="action" @tap="hideModal">
-							<text class="cuIcon-close text-red"></text>
+			<view v-if="modalName=='DialogModal1'">
+				<!-- 用户建议反馈模态框 -->
+				<view class="cu-modal" :class="modalName=='DialogModal1'?'show':''">
+					<view class="cu-dialog">
+						<view class="cu-bar bg-white justify-end">
+							<view class="content padding-top-sm">用户建议反馈</view>
+							<view class="action" @tap="hideModal">
+								<text class="cuIcon-close text-red"></text>
+							</view>
 						</view>
-					</view>
-					<view class="cu-form-group margin-top padding-xl margin-bottom" style="text-align: left;">
-						<textarea maxlength="-1" @input="textareaAInput" placeholder="请输入您想反馈的内容"></textarea>
-					</view>
-					<view class="cu-bar bg-white justify-end">
-						<view class="action">
-							<button class="cu-btn line-blue text-green" @tap="hideModal">取消</button>
-							<button class="cu-btn bg-blue margin-left" :disabled="!content" @tap="submit">确定</button>
-			
+						<view class="cu-form-group margin-top padding-xl margin-bottom" style="text-align: left;">
+							<textarea maxlength="-1" @input="textareaAInput" placeholder="请输入您想反馈的内容"></textarea>
+						</view>
+						<view class="cu-bar bg-white justify-end">
+							<view class="action">
+								<button class="cu-btn line-blue text-green" @tap="hideModal">取消</button>
+								<button class="cu-btn bg-blue margin-left" :disabled="!content" @tap="submit">确定</button>
+				
+							</view>
 						</view>
 					</view>
 				</view>
@@ -65,7 +66,7 @@
 <script>
 	// 可以删除
 	var util = require('@/common/util.js');
-	const qiniuUploader = require("@/components/qiniu-wxapp-sdk/sdk/qiniuUploader");
+	const qiniuUploader = require("@/common/SDK/qiniuUploader.js");
 	export default {
 		data() {
 			return {
