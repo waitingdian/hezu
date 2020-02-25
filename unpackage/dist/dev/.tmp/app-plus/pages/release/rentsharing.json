@@ -2,7 +2,8 @@
   "navigationStyle": "custom",
   "navigationBarTitleText": "合租房发布",
   "usingComponents": {
-    "cu-custom": "/colorui/components/cu-custom",
-    "mpvue-city-picker": "/components/mpvue-citypicker/mpvueCityPicker"
+    "mpvue-city-picker": "/components/mpvue-citypicker/mpvueCityPicker",
+    "uni-list": "/components/uni-list/uni-list",
+    "uni-list-item": "/components/uni-list-item/uni-list-item"
   }
 }

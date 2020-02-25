@@ -2,7 +2,6 @@
   "navigationStyle": "custom",
   "navigationBarTitleText": "预租房发布",
   "usingComponents": {
-    "cu-custom": "/colorui/components/cu-custom",
     "mpvue-city-picker": "/components/mpvue-citypicker/mpvueCityPicker"
   }
 }

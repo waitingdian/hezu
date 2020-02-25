@@ -18,6 +18,8 @@
     "pages/user/personal",
     "pages/chat/detail",
     "pages/user/user",
+    "pages/user/college",
+    "pages/user/collegeManage",
     "pages/user/about"
   ],
   "window": {
@@ -58,14 +60,14 @@
       }
     ]
   },
-  "nvueCompiler": "uni-app",
+  "nvueCompiler": "weex",
   "renderer": "auto",
   "splashscreen": {
     "alwaysShowBeforeRender": true,
     "autoclose": false
   },
   "appname": "校友合租",
-  "compilerVersion": "2.4.6",
+  "compilerVersion": "2.3.2",
   "usingComponents": {
     "cu-custom": "/colorui/components/cu-custom"
   }

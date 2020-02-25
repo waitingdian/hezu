@@ -1,7 +1,5 @@
 {
   "navigationStyle": "custom",
   "navigationBarTitleText": "聊一聊",
-  "usingComponents": {
-    "cu-custom": "/colorui/components/cu-custom"
-  }
+  "usingComponents": {}
 }

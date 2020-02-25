@@ -79,7 +79,7 @@
 						}
 						if (res.data.status != 10) {
 							uni.switchTab({
-								url: '/pages/user/user'
+								url: '/pages/user/mine'
 							});
 						} else {
 							uni.switchTab({

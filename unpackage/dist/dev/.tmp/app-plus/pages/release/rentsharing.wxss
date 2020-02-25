@@ -36,7 +36,8 @@
 .txt-cut {
   overflow: hidden;
   white-space: nowrap;
-  text-overflow: ellipsis;
+  -o-text-overflow: ellipsis;
+     text-overflow: ellipsis;
 }
 .no-more-txt {
   text-align: center;
@@ -48,6 +49,21 @@
 }
 .prelease .footer {
   width: 100%;
+}
+.prelease .row-arow:after {
+  font-family: cuIcon;
+  display: block;
+  content: "\E6A3";
+  position: absolute;
+  font-size: 17px;
+  color: #8799a3;
+  line-height: 50px;
+  width: 30px;
+  text-align: center;
+  top: 0;
+  bottom: 0;
+  right: 5px;
+  margin: auto;
 }
 .prelease .cu-form-group {
   position: relative;

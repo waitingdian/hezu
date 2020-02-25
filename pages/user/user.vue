@@ -50,28 +50,10 @@
 				<view class="title">性别</view>
 				<view> {{ userForm.sex == 1 ? '男' : '女' }} </view>
 			</view>
-			<view class="cu-form-group">
+			<view class="cu-form-group row-arow" @tap="toCollege()">
 				<view class="title">学校</view>
 				<input v-if="isEdit" v-model="userForm.college" placeholder="请输入大学名称" name="input" maxlength="100"></input>
-				<view v-else>{{ userForm.college }}</view>
-			</view>
-			<view class="cu-form-group">
-				<view class="title">入学时间</view>
-				<picker v-if="isEdit" fields="year" mode="date" :value="userForm.start_time" start="1900-01-01" end="2020-09-01" @change="startDateChange">
-					<view class="picker">
-						{{ userForm.start_time || '请选择'}}
-					</view>
-				</picker>
-				<view v-else> {{ userForm.start_time }} </view>
-			</view>
-			<view class="cu-form-group">
-				<view class="title">毕业时间</view>
-				<picker v-if="isEdit" fields="year" mode="date" :value="userForm.end_time" start="1903-09-01" end="2025-09-01" @change="endDateChange">
-					<view class="picker">
-						{{ userForm.end_time || '请选择'}}
-					</view>
-				</picker>
-				<view v-else> {{ userForm.end_time}} </view>
+				<view v-else>{{ userForm.college }}></view>
 			</view>
 			<view class="cu-form-group margin-top">
 				<view class="title">兴趣爱好</view>
@@ -206,8 +188,6 @@
 					phone: '',
 					sex: 1,
 					school: 1,
-					start_time: '2016-08',
-					end_time: '',
 					hobby: "",
 					education: '',
 					studentPhoto: '',
@@ -275,14 +255,6 @@
 			},
 			changeSex(e) {
 				this.userForm.sex = e.detail.value
-			},
-			
-			startDateChange(e) {
-				this.userForm.start_time = e.detail.value
-			},
-			
-			endDateChange(e) {
-				this.userForm.end_time = e.detail.value
 			},
 			
 			chooseImage: function() {
@@ -426,6 +398,12 @@
 				})
 			},
 			
+			toCollege () {
+				uni.navigateTo({
+					url: `/pages/user/college`
+				})
+			},
+			
 			cancelSave(){
 				this.isEdit = false
 				this.getUserInfo()
@@ -469,8 +447,6 @@
 					sex: this.userForm.sex,  // 性别	Integer	1：男 2:女	Y
 					college: this.userForm.college,  // 大学	string	无	Y
 					degree: this.xueliList[this.index],  // 最高学历	string	无	N
-					start_time: util.format(this.userForm.start_time),  //	入学时间	string	yyyy-MM-dd hh:mm:ss	Y
-					end_time: end_time,  // 毕业时间	string	yyyy-MM-dd hh:mm:ss	N
 					id_card_url: this.imgList[0] || '',  // 学生证	string	上传地址	N
 					diploma_url: this.imgList1[0] || '',  // 毕业证	string	上传地址	N
 					interest: this.userForm.hobby,  // 兴趣爱好	string	无	N
@@ -510,9 +486,12 @@
 					this.userForm.sex = res.data.sex;  // 性别	Integer	1：男 2:女	Y					
 					this.userForm.college = res.data.college;  // 大学	string	无	Y					
 					this.userForm.degree = res.data.degree;  // 最高学历	string	无	N					
-					this.userForm.start_time = res.data.start_time;  //	入学时间	string	yyyy-MM-dd hh:mm:ss	Y					
 					this.userForm.start_time = util.toStringDate(res.data.start_time);  //	入学时间	string	yyyy-MM-dd hh:mm:ss	Y					
-					this.userForm.end_time = util.toStringDate(res.data.end_time);  // 毕业时间	string	yyyy-MM-dd hh:mm:ss	N					
+					this.userForm.end_time = util.toStringDate(res.data.end_time);  // 毕业时间	string	yyyy-MM-dd hh:mm:ss	N
+					console.log(res.data.start_time)
+					console.log(res.data.end_time)
+					console.log("测试开始时间"+util.toStringDate(res.data.start_time))
+					console.log("测试结束时间"+util.toStringDate(res.data.end_time))
 					this.imgList = res.data.id_card_url && res.data.id_card_url.split() || [];  // 学生证	string	上传地址	N
 					this.imgList1 = res.data.diploma_url && res.data.diploma_url.split() || []; // 毕业证	string	上传地址	N
 					this.userForm.hobby = res.data.interest;  // 兴趣爱好	string

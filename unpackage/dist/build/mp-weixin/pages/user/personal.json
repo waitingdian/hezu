@@ -1,4 +1,6 @@
 {
   "navigationBarTitleText": "完善个人信息",
-  "usingComponents": {}
+  "usingComponents": {
+    "input-autocomplete": "/components/input-autocomplete/input-autocomplete"
+  }
 }

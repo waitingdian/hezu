@@ -18,6 +18,8 @@
     "pages/user/personal",
     "pages/chat/detail",
     "pages/user/user",
+    "pages/user/college",
+    "pages/user/collegeManage",
     "pages/user/about"
   ],
   "subPackages": [],

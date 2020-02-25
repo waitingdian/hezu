@@ -36,7 +36,8 @@
 .txt-cut {
   overflow: hidden;
   white-space: nowrap;
-  text-overflow: ellipsis;
+  -o-text-overflow: ellipsis;
+     text-overflow: ellipsis;
 }
 .no-more-txt {
   text-align: center;
@@ -64,6 +65,7 @@
     width: 92%;
     display: -webkit-box;
     display: -webkit-flex;
+    display: -ms-flexbox;
     display: flex;
     margin: 0 auto;
 }
@@ -76,9 +78,11 @@
 .user-page .user-info .name-wraper {
       display: -webkit-box;
       display: -webkit-flex;
+      display: -ms-flexbox;
       display: flex;
       -webkit-box-align: center;
       -webkit-align-items: center;
+          -ms-flex-align: center;
               align-items: center;
       width: 58%;
       padding: 4% 20px;
