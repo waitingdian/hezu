@@ -4,31 +4,29 @@
     "iPhone",
     "iPad"
   ],
-  "id": "__UNI__1202016",
+  "id": "__UNI__24057B2",
   "name": "校友合租",
   "version": {
     "name": "1.0.0",
     "code": "100"
   },
   "description": "校友合租",
-  "launch_path": "__uniapptabbar.html",
+  "launch_path": "__uniappview.html",
   "developer": {
     "name": "",
     "email": "",
     "url": ""
   },
   "permissions": {
-    "Maps": {
-      "coordType": "gcj02"
-    },
     "Share": {},
+    "OAuth": {},
     "UniNView": {
       "description": "UniNView原生渲染"
     }
   },
   "plus": {
     "useragent": {
-      "value": "uni-app appservice",
+      "value": "uni-app",
       "concatenate": true
     },
     "splashscreen": {
@@ -38,7 +36,11 @@
       "delay": 0
     },
     "popGesture": "close",
-    "launchwebview": {},
+    "launchwebview": {
+      "id": "1",
+      "kernel": "WKWebview",
+      "uni-app": "auto"
+    },
     "statusbar": {
       "immersed": "supportedDevice",
       "style": "dark",
@@ -80,38 +82,43 @@
       },
       "splashscreen": {
         "android": {
-          "hdpi": "C:/Users/Administrator/Desktop/AA/微信图片_20191212230425.png",
-          "xhdpi": "C:/Users/Administrator/Desktop/AA/微信图片_20191212230425.png"
+          "hdpi": "/Users/baopengcheng/Desktop/校友合租/WechatIMG4707.png",
+          "xhdpi": "/Users/baopengcheng/Desktop/校友合租/WechatIMG4707.png",
+          "xxhdpi": "/Users/baopengcheng/Desktop/校友合租/WechatIMG4707.png"
         }
       },
       "google": {
         "permissions": [
+          "<uses-feature android:name=\"android.hardware.camera\"/>",
+          "<uses-feature android:name=\"android.hardware.camera.autofocus\"/>",
+          "<uses-permission android:name=\"android.permission.ACCESS_COARSE_LOCATION\"/>",
+          "<uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\"/>",
+          "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\"/>",
+          "<uses-permission android:name=\"android.permission.ACCESS_WIFI_STATE\"/>",
+          "<uses-permission android:name=\"android.permission.CALL_PHONE\"/>",
+          "<uses-permission android:name=\"android.permission.CAMERA\"/>",
           "<uses-permission android:name=\"android.permission.CHANGE_NETWORK_STATE\"/>",
+          "<uses-permission android:name=\"android.permission.CHANGE_WIFI_STATE\"/>",
+          "<uses-permission android:name=\"android.permission.FLASHLIGHT\"/>",
+          "<uses-permission android:name=\"android.permission.GET_ACCOUNTS\"/>",
+          "<uses-permission android:name=\"android.permission.INTERNET\"/>",
+          "<uses-permission android:name=\"android.permission.MODIFY_AUDIO_SETTINGS\"/>",
           "<uses-permission android:name=\"android.permission.MOUNT_UNMOUNT_FILESYSTEMS\"/>",
           "<uses-permission android:name=\"android.permission.READ_CONTACTS\"/>",
-          "<uses-permission android:name=\"android.permission.VIBRATE\"/>",
           "<uses-permission android:name=\"android.permission.READ_LOGS\"/>",
-          "<uses-permission android:name=\"android.permission.ACCESS_WIFI_STATE\"/>",
-          "<uses-feature android:name=\"android.hardware.camera.autofocus\"/>",
-          "<uses-permission android:name=\"android.permission.WRITE_CONTACTS\"/>",
-          "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\"/>",
-          "<uses-permission android:name=\"android.permission.CAMERA\"/>",
-          "<uses-permission android:name=\"android.permission.RECORD_AUDIO\"/>",
-          "<uses-permission android:name=\"android.permission.GET_ACCOUNTS\"/>",
-          "<uses-permission android:name=\"android.permission.MODIFY_AUDIO_SETTINGS\"/>",
           "<uses-permission android:name=\"android.permission.READ_PHONE_STATE\"/>",
-          "<uses-permission android:name=\"android.permission.CHANGE_WIFI_STATE\"/>",
+          "<uses-permission android:name=\"android.permission.RECORD_AUDIO\"/>",
+          "<uses-permission android:name=\"android.permission.VIBRATE\"/>",
           "<uses-permission android:name=\"android.permission.WAKE_LOCK\"/>",
-          "<uses-permission android:name=\"android.permission.CALL_PHONE\"/>",
-          "<uses-permission android:name=\"android.permission.FLASHLIGHT\"/>",
-          "<uses-permission android:name=\"android.permission.ACCESS_COARSE_LOCATION\"/>",
-          "<uses-feature android:name=\"android.hardware.camera\"/>",
-          "<uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\"/>",
+          "<uses-permission android:name=\"android.permission.WRITE_CONTACTS\"/>",
+          "<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\"/>",
           "<uses-permission android:name=\"android.permission.WRITE_SETTINGS\"/>"
         ]
       },
       "apple": {},
       "plugins": {
+        "maps": {},
+        "oauth": {},
         "audio": {
           "mp3": {
             "description": "Android平台录音支持MP3格式文件"
@@ -128,18 +135,51 @@
       }
     },
     "uni-app": {
-      "compilerVersion": "2.3.2",
+      "compilerVersion": "2.6.0",
       "control": "v8",
-      "nvueCompiler": "weex",
-      "renderer": "auto"
+      "nvueCompiler": "uni-app",
+      "renderer": "auto",
+      "nvue": {
+        "flex-direction": "column"
+      }
     },
-    "secondwebview": {
-      "id": "1",
-      "launch_path": "__uniappview.html",
-      "kernel": "WKWebview",
-      "mode": "child",
-      "top": 0,
-      "bottom": 56
+    "tabBar": {
+      "color": "#333333",
+      "selectedColor": "#f06c7a",
+      "borderStyle": "rgba(0,0,0,0.4)",
+      "backgroundColor": "#ffffff",
+      "list": [
+        {
+          "pagePath": "pages/home/home",
+          "iconPath": "static/img/tabBar/home1.png",
+          "selectedIconPath": "static/img/tabBar/home1-on.png",
+          "text": "精选"
+        },
+        {
+          "pagePath": "pages/rent/rent",
+          "iconPath": "static/img/tabBar/guanzhu.png",
+          "selectedIconPath": "static/img/tabBar/guanzhu-on.png",
+          "text": "我的合租"
+        },
+        {
+          "pagePath": "pages/chat/list",
+          "iconPath": "static/img/tabBar/news.png",
+          "selectedIconPath": "static/img/tabBar/news-on.png",
+          "text": "聊一聊"
+        },
+        {
+          "pagePath": "pages/user/mine",
+          "iconPath": "static/img/tabBar/me.png",
+          "selectedIconPath": "static/img/tabBar/me-on.png",
+          "text": "我的信息"
+        }
+      ],
+      "height": "50px",
+      "child": [
+        "lauchwebview"
+      ],
+      "selected": 0
     }
-  }
+  },
+  "usingComponents": {}
 }

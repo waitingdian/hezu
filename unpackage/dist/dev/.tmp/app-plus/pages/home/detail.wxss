@@ -36,8 +36,7 @@
 .txt-cut {
   overflow: hidden;
   white-space: nowrap;
-  -o-text-overflow: ellipsis;
-     text-overflow: ellipsis;
+  text-overflow: ellipsis;
 }
 .no-more-txt {
   text-align: center;
@@ -79,19 +78,16 @@
 }
 .rentdetail .rent-list text {
     padding: 0 8rpx;
-    -webkit-box-sizing: border-box;
-            box-sizing: border-box;
+    box-sizing: border-box;
 }
 .rentdetail .rent-list .rent-item {
     line-height: 64rpx;
     display: -webkit-box;
     display: -webkit-flex;
-    display: -ms-flexbox;
     display: flex;
     background-color: #e7e7e7;
     margin-bottom: 20rpx;
-    -webkit-box-sizing: border-box;
-            box-sizing: border-box;
+    box-sizing: border-box;
     border: 1rpx solid #e7e7e7;
 }
 .rentdetail .rent-list .rent-item .name {
@@ -108,7 +104,6 @@
 }
 .rentdetail .rent-list .rent-item text {
       -webkit-flex-shrink: 0;
-          -ms-flex-negative: 0;
               flex-shrink: 0;
 }
 .rentdetail .cu-tag {
@@ -135,7 +130,6 @@
 .rentdetail .table-item {
     display: -webkit-box;
     display: -webkit-flex;
-    display: -ms-flexbox;
     display: flex;
     border-top: 1px solid #ccc;
     border-left: 1px solid #ccc;
@@ -144,7 +138,6 @@
       padding: 16rpx 0;
       -webkit-box-flex: 1;
       -webkit-flex: 1;
-          -ms-flex: 1;
               flex: 1;
       border-right: 1px solid #ccc;
       text-align: center;
@@ -174,7 +167,6 @@
 .rentdetail .roominfo .uni-form-item {
     display: -webkit-box;
     display: -webkit-flex;
-    display: -ms-flexbox;
     display: flex;
     height: 70rpx;
     line-height: 70rpx;

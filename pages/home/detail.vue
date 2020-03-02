@@ -44,7 +44,7 @@
 				<!-- 10:租房完成; -->
 				<!-- 20:租房解散(取消); -->
 				<view><text class="label">地区:</text>{{ detailInfo.province }} {{ detailInfo.city }} {{ detailInfo.district }}</view>
-				<view @click="openLocation"><text class="label">位置:</text>{{ detailInfo.address_name }}</view>
+				<view @click="openLocation"><text class="label">位置:</text><text class="lg text-gray cuIcon-location">{{ detailInfo.address_name }}</text></view>
 				<view><text class="label" v-if="detailInfo.cotenant_description">个人描述:</text></view>
 				<view class="desc-content" v-if="detailInfo.cotenant_description">{{ detailInfo.cotenant_description }}</view>
 				<view><text class="label" v-if="detailInfo.chamber_description">租房描述:</text></view>

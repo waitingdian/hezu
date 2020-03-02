@@ -36,8 +36,7 @@
 .txt-cut {
   overflow: hidden;
   white-space: nowrap;
-  -o-text-overflow: ellipsis;
-     text-overflow: ellipsis;
+  text-overflow: ellipsis;
 }
 .no-more-txt {
   text-align: center;

@@ -1,2 +1,2 @@
-setCssToHead([".",[1],"chat-detail-page{ min-height: 100vh; }\nbody{ padding-bottom: ",[0,110],"; }\n.",[1],"msg-list{ position: absolute; top: 80px; bottom: ",[0,100],"; }\n",],"Some selectors are not allowed in component wxss, including tag name selectors, ID selectors, and attribute selectors.(./pages/chat/detail.wxss:6:1)",{path:"./pages/chat/detail.wxss"})();
+setCssToHead([".",[1],"chat-detail-page{ min-height: 100vh; }\nbody{ padding-bottom: ",[0,110],"; }\n.",[1],"msg-list{ position: absolute; top: 80px; bottom: ",[0,100],"; }\n",],undefined,{path:"./pages/chat/detail.wxss"})();
 document.dispatchEvent(new CustomEvent("generateFuncReady", { detail: { generateFunc: $gwx('./pages/chat/detail.wxml') } }));

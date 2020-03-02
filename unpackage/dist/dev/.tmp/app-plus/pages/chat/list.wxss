@@ -11,8 +11,7 @@
 }
 .chat-text-cut{
 	overflow:hidden;
-	-o-text-overflow:ellipsis;
-	   text-overflow:ellipsis;
+	text-overflow:ellipsis;
 	white-space:nowrap;
 }
 

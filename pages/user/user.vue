@@ -52,8 +52,8 @@
 			</view>
 			<view class="cu-form-group row-arow" @tap="toCollege()">
 				<view class="title">学校</view>
-				<input v-if="isEdit" v-model="userForm.college" placeholder="请输入大学名称" name="input" maxlength="100"></input>
-				<view v-else>{{ userForm.college }}></view>
+				<!-- <view class="lg text-gray cuIcon-roundright">{{ userForm.college }}</view> -->
+				<view class="lg text-blue cuIcon-roundright">{{ userForm.college }}</view>
 			</view>
 			<view class="cu-form-group margin-top">
 				<view class="title">兴趣爱好</view>

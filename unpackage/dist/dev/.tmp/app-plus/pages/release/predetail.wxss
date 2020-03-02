@@ -36,8 +36,7 @@
 .txt-cut {
   overflow: hidden;
   white-space: nowrap;
-  -o-text-overflow: ellipsis;
-     text-overflow: ellipsis;
+  text-overflow: ellipsis;
 }
 .no-more-txt {
   text-align: center;
@@ -47,7 +46,6 @@
 .prelease .table-item {
   display: -webkit-box;
   display: -webkit-flex;
-  display: -ms-flexbox;
   display: flex;
   border-top: 1px solid #ccc;
   border-left: 1px solid #ccc;
@@ -56,7 +54,6 @@
     padding: 16rpx 0;
     -webkit-box-flex: 1;
     -webkit-flex: 1;
-        -ms-flex: 1;
             flex: 1;
     border-right: 1px solid #ccc;
     text-align: center;
@@ -91,7 +88,6 @@
 .prelease .roominfo .uni-form-item {
   display: -webkit-box;
   display: -webkit-flex;
-  display: -ms-flexbox;
   display: flex;
   height: 70rpx;
   line-height: 70rpx;
