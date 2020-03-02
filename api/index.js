@@ -25,6 +25,22 @@ api.getInfo = params => request.globalRequest(`/user/info`, 'GET', params)
 // 1.7
 api.proposalReported = params => request.globalRequest(`/user/proposal/reported`, 'POST', params)
 
+//1.8 获取学校信息
+api.getColleges = params => request.globalRequest(`/sys/college/list`,'GET',params)
+
+//1.9获取用户学校信息
+api.getUserColleges = params => request.globalRequest(`/user/list/colleges`,'GET',params)
+
+// 1.10新增学校
+api.saveUserColleges = params => request.globalRequest(`/user/add/colleges`, 'POST', params)
+
+// 1.11编辑学校
+api.updateUserColleges = params => request.globalRequest(`/user/update/colleges`, 'PUT', params)
+
+// 1.12删除学校
+api.daleteUserColleges = (params) => request.globalRequest(`/user/delete/colleges/${params.id}`, 'DELETE', params)
+
+
 // 租房
 // 1.1 精选页面租房列表
 api.getGroupList = params => request.globalRequest(`/group/list`, 'GET', params)

@@ -4606,7 +4606,7 @@ scroll-view.cu-steps .cu-item {
       color: #000000;
       font-family: iconfont;
 }
-.iconweizhi:before { /* 需要使用的图标 */
+.iconweizhi:before { /* 需要使用的图标 */
 		content: '\E615';
 }
 .iconxiaosanjiaodown:before {

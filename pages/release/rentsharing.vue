@@ -20,6 +20,13 @@
 								{{region.label}}
 							</view>
 						</view>
+						<view @click="chooseLocation" class="cu-form-group row-arow">
+							<view class="title">地址
+								<text style="padding-left: 88upx;font-size: 14px;">
+									{{addressData.addressName}}
+								</text>
+							</view>
+						</view>
 						<view class="cu-form-group">
 							<view class="title">合租数<text style="padding-left: 20upx;font-size: 28upx;color:rgb(124,125,121);">(默认一人一间房)</text></view>
 							<picker @change="PickerChange" :value="index" :range="picker" range-key="label">
@@ -81,6 +88,8 @@
 	       mapMutations  
 	   } from 'vuex'; 
 	import mpvueCityPicker from '@/components/mpvue-citypicker/mpvueCityPicker.vue'
+	import uniList from '@/components/uni-list/uni-list.vue'
+	import uniListItem from '@/components/uni-list-item/uni-list-item.vue'
 	const qiniuUploader = require("@/common/SDK/qiniuUploader.js");
 	export default {
 		data() {
@@ -107,11 +116,20 @@
 				cityPickerValue: [0, 0, 1],
 				cityPickerLabel: [],
 				imgList: [],
-				limit: 9
+				limit: 9,
+				addressData: {
+					addressName: '在地图选择',
+					addressDetail: '',
+					addressLongitude: '',
+					addressLatitude: ''
+					
+				}
 			}
 		},
 		components: {
-			mpvueCityPicker
+			mpvueCityPicker,
+			uniList,
+			uniListItem
 		},
 		onLaunch: function() {
 			uni.getSystemInfo({
@@ -219,6 +237,17 @@
 				this.cityPickerValue = e.value;
 				this.cityPickerLabel = arr
 			},
+			//地图选择地址
+			chooseLocation(){
+				uni.chooseLocation({
+					success: (data)=> {
+						this.addressData.addressName = data.name;
+						this.addressData.addressDetail = data.address;
+						this.addressData.addressLatitude = data.latitude;
+						this.addressData.addressLongitude = data.longitude;
+					}
+				})
+			},
 			formSubmitPre: function(e) {
 				if (!this.form.title) {
 					uni.showToast({title: '标题不能为空', icon: 'none'});
@@ -238,6 +267,10 @@
 					province: this.cityPickerLabel[0],
 					city: this.cityPickerLabel[1],
 					district: this.cityPickerLabel[2],
+					address_name: this.addressData.addressName,
+					address_detail: this.addressData.addressDetail,
+					address_longitude: this.addressData.addressLongitude,
+					address_latitude: this.addressData.addressLatitude,
 					cotenant_type: this.form.cotenant_type,
 					cotenant_count: this.picker[this.index].value,
 					cotenant_description: this.form.cotenant_description,
@@ -267,6 +300,21 @@
 			// position: fixed;
 			// bottom: 0;
 			width: 100%;
+		}
+		.row-arow:after {
+			font-family: cuIcon;
+			display: block;
+			content: "\E6A3";
+			position: absolute;
+			font-size: 17px;
+			color: #8799a3;
+			line-height: 50px;
+			width: 30px;
+			text-align: center;
+			top: 0;
+			bottom: 0;
+			right: 5px;
+			margin: auto;
 		}
 		.cu-form-group{
 			position: relative;

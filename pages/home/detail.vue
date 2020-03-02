@@ -9,7 +9,7 @@
 				<view class="padding-right-lg report-btn" v-if="userInfo.user_id != detailInfo.leader_id" @tap="showModal" data-target="DialogModal1">举报</view>
 			    <!--  #endif -->
 				<!--  #ifdef  MP-WEIXIN -->
-				<view class="report-btn"style="position: absolute;right: 214upx;top:95upx;" v-if="userInfo.user_id != detailInfo.leader_id" @tap="showModal" data-target="DialogModal1">举报</view>
+				<view class="report-btn" style="position: absolute;right: 214upx;top:95upx;" v-if="userInfo.user_id != detailInfo.leader_id" @tap="showModal" data-target="DialogModal1">举报</view>
 				<!--  #endif -->
 			</block>
 			
@@ -43,7 +43,8 @@
 				<!-- 0:租房中; -->
 				<!-- 10:租房完成; -->
 				<!-- 20:租房解散(取消); -->
-				<view><text class="label">位置:</text>{{ detailInfo.province }}{{ detailInfo.city }}{{ detailInfo.district }}</view>
+				<view><text class="label">地区:</text>{{ detailInfo.province }} {{ detailInfo.city }} {{ detailInfo.district }}</view>
+				<view @click="openLocation"><text class="label">位置:</text><text class="lg text-gray cuIcon-location">{{ detailInfo.address_name }}</text></view>
 				<view><text class="label" v-if="detailInfo.cotenant_description">个人描述:</text></view>
 				<view class="desc-content" v-if="detailInfo.cotenant_description">{{ detailInfo.cotenant_description }}</view>
 				<view><text class="label" v-if="detailInfo.chamber_description">租房描述:</text></view>
@@ -255,7 +256,7 @@
 				   res.data.created_time = util.getDate(res.data.created_time)
 				   this.detailInfo = res.data
 				   res.data.end_time = util.getDate(res.data.end_time)
-				   console.log(res.data.end_time)
+				   console.log(this.detailInfo)
 				}).catch(err => {
 				})
 			},
@@ -277,6 +278,17 @@
 						}
 					}
 				});	
+			},
+			
+			openLocation: function (e) {
+				console.log(e)
+				var value = e.target.value
+				uni.openLocation({
+					longitude: Number(this.detailInfo.address_longitude),
+					latitude: Number(this.detailInfo.address_latitude),
+					name: this.detailInfo.address_name,
+					address: this.detailInfo.address_detail
+				})
 			},
 			
 			doDismissAjax () {
@@ -455,6 +467,7 @@
 				padding-right: 14upx
 			}
 		}
+		
 		.roominfo{
 			.uni-form-item{
 				display: flex;

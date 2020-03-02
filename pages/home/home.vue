@@ -216,7 +216,7 @@
 				productList: [],
 				loadingText: '',
 				showSelectCity: false,
-				hotCitys: ['上海市', '北京市', '广州市', '深圳市', '杭州市', '天津市', '武汉市', '重庆市', '成都市', '苏州市', '苏州市', '南京市', '荆州市'],
+				hotCitys: ['上海市', '北京市', '广州市', '深圳市', '杭州市', '天津市', '武汉市', '重庆市', '成都市', '苏州市', '南京市', '荆州市'],
 				value: '杭州',
 				windowHeight: '',
 				scrollIntoId: 'F',

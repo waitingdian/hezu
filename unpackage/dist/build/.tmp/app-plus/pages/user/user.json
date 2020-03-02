@@ -1,6 +1,6 @@
 {
   "navigationStyle": "custom",
-  "navigationBarTitleText": "设置",
+  "navigationBarTitleText": "我的信息",
   "usingComponents": {
     "cu-custom": "/colorui/components/cu-custom"
   }

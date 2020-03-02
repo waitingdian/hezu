@@ -1,0 +1,8 @@
+{
+  "navigationStyle": "custom",
+  "navigationBarTitleText": "我的学校",
+  "usingComponents": {
+    "uni-card": "/components/uni-card/uni-card",
+    "cu-custom": "/colorui/components/cu-custom"
+  }
+}

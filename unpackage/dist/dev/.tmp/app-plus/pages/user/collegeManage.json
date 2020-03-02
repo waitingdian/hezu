@@ -1,0 +1,7 @@
+{
+  "navigationStyle": "custom",
+  "navigationBarTitleText": "编辑我的学校",
+  "usingComponents": {
+    "cu-custom": "/colorui/components/cu-custom"
+  }
+}
